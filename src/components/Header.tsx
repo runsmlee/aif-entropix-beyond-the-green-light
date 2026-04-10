@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { useActiveSection } from '../hooks/useActiveSection';
 
 interface HeaderProps {
   mobileMenuOpen: boolean;
@@ -9,9 +10,13 @@ const NAV_ITEMS = [
   { label: 'Features', href: '#features' },
   { label: 'How It Works', href: '#how-it-works' },
   { label: 'Metrics', href: '#metrics' },
+  { label: 'Testimonials', href: '#testimonials' },
+  { label: 'FAQ', href: '#faq' },
 ] as const;
 
 export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
+  const activeSection = useActiveSection();
+
   const handleNavClick = useCallback(() => {
     onToggleMobileMenu();
   }, [onToggleMobileMenu]);
@@ -27,16 +32,24 @@ export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
             <span className="text-lg font-semibold text-neutral-900">Entropix</span>
           </a>
 
-          <nav className="hidden md:flex items-center gap-8" aria-label="Main navigation">
-            {NAV_ITEMS.map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className="text-sm font-medium text-neutral-600 hover:text-primary transition-colors duration-200"
-              >
-                {item.label}
-              </a>
-            ))}
+          <nav className="hidden md:flex items-center gap-6" aria-label="Main navigation">
+            {NAV_ITEMS.map((item) => {
+              const sectionId = item.href.replace('#', '');
+              const isActive = activeSection === sectionId;
+              return (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className={`text-sm font-medium transition-colors duration-200 ${
+                    isActive
+                      ? 'text-primary'
+                      : 'text-neutral-600 hover:text-primary'
+                  }`}
+                >
+                  {item.label}
+                </a>
+              );
+            })}
             <a
               href="#cta"
               className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
@@ -72,16 +85,24 @@ export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
             aria-label="Mobile navigation"
           >
             <div className="flex flex-col gap-2">
-              {NAV_ITEMS.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  onClick={handleNavClick}
-                  className="px-3 py-2 text-sm font-medium text-neutral-600 hover:text-primary hover:bg-neutral-50 rounded-lg transition-colors"
-                >
-                  {item.label}
-                </a>
-              ))}
+              {NAV_ITEMS.map((item) => {
+                const sectionId = item.href.replace('#', '');
+                const isActive = activeSection === sectionId;
+                return (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    onClick={handleNavClick}
+                    className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      isActive
+                        ? 'text-primary bg-primary/5'
+                        : 'text-neutral-600 hover:text-primary hover:bg-neutral-50'
+                    }`}
+                  >
+                    {item.label}
+                  </a>
+                );
+              })}
               <a
                 href="#cta"
                 onClick={handleNavClick}

@@ -1,3 +1,5 @@
+import { useScrollAnimation } from '../hooks/useScrollAnimation';
+
 const FEATURES = [
   {
     title: 'Entropy Detection',
@@ -61,13 +63,50 @@ const FEATURES = [
   },
 ] as const;
 
+function FeatureCard({
+  feature,
+  index,
+}: {
+  feature: (typeof FEATURES)[number];
+  index: number;
+}) {
+  const { ref, isVisible } = useScrollAnimation();
+
+  return (
+    <article
+      ref={ref}
+      className={`bg-white rounded-xl p-6 border border-neutral-200 hover:border-primary/30 hover:shadow-lg transition-all duration-300 ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
+      }`}
+      style={{ transitionDelay: `${index * 80}ms` }}
+    >
+      <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4">
+        {feature.icon}
+      </div>
+      <h3 className="text-lg font-semibold text-neutral-900 mb-2">
+        {feature.title}
+      </h3>
+      <p className="text-neutral-600 text-sm leading-relaxed">
+        {feature.description}
+      </p>
+    </article>
+  );
+}
+
 export function Features() {
+  const { ref, isVisible } = useScrollAnimation();
+
   return (
     <section id="features" className="py-20 sm:py-28 bg-neutral-50" aria-labelledby="features-heading">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div
+          ref={ref}
+          className={`text-center max-w-2xl mx-auto mb-16 transition-all duration-700 ease-out ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+          }`}
+        >
           <h2 id="features-heading" className="text-3xl sm:text-4xl font-bold text-neutral-900">
-            Intelligence that sees what dashboards can't
+            Intelligence that sees what dashboards can&apos;t
           </h2>
           <p className="mt-4 text-lg text-neutral-600">
             Six core capabilities designed to surface hidden chaos and turn entropy into actionable insight.
@@ -75,21 +114,8 @@ export function Features() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {FEATURES.map((feature) => (
-            <article
-              key={feature.title}
-              className="bg-white rounded-xl p-6 border border-neutral-200 hover:border-primary/30 hover:shadow-lg transition-all duration-300"
-            >
-              <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4">
-                {feature.icon}
-              </div>
-              <h3 className="text-lg font-semibold text-neutral-900 mb-2">
-                {feature.title}
-              </h3>
-              <p className="text-neutral-600 text-sm leading-relaxed">
-                {feature.description}
-              </p>
-            </article>
+          {FEATURES.map((feature, index) => (
+            <FeatureCard key={feature.title} feature={feature} index={index} />
           ))}
         </div>
       </div>

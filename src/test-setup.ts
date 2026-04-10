@@ -30,3 +30,37 @@ if (typeof globalThis.IntersectionObserver === 'undefined') {
   globalThis.IntersectionObserver =
     MockIntersectionObserver as unknown as typeof IntersectionObserver;
 }
+
+// Mock HTMLCanvasElement.getContext for jsdom
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(HTMLCanvasElement.prototype as any).getContext = function (
+  contextId: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): any {
+  if (contextId === '2d') {
+    return {
+      fillRect: () => {},
+      clearRect: () => {},
+      fillText: () => {},
+      measureText: () => ({ width: 0 }),
+      beginPath: () => {},
+      closePath: () => {},
+      moveTo: () => {},
+      lineTo: () => {},
+      stroke: () => {},
+      fill: () => {},
+      arc: () => {},
+      roundRect: () => {},
+      rect: () => {},
+      scale: () => {},
+      save: () => {},
+      restore: () => {},
+      globalAlpha: 1,
+      createLinearGradient: () => ({
+        addColorStop: () => {},
+      }),
+      canvas: this,
+    };
+  }
+  return null;
+};
