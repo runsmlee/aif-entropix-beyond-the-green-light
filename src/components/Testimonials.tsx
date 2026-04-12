@@ -37,7 +37,7 @@ export function Testimonials() {
   return (
     <section
       id="testimonials"
-      className="py-20 sm:py-28 bg-white"
+      className="py-20 sm:py-28 bg-gradient-to-b from-white to-neutral-50/50"
       aria-labelledby="testimonials-heading"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -76,7 +76,7 @@ function TestimonialCard({ testimonial }: { testimonial: TestimonialData }) {
   return (
     <blockquote
       ref={ref}
-      className={`bg-neutral-50 rounded-xl p-6 border border-neutral-200 transition-all duration-700 ease-out hover:border-primary/20 hover:shadow-md ${
+      className={`group bg-neutral-50 rounded-xl p-6 border border-neutral-200 transition-all duration-300 ease-out hover:border-primary/20 hover:shadow-md hover:-translate-y-1 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       }`}
     >

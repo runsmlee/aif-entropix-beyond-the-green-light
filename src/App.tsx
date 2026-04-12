@@ -1,13 +1,88 @@
-import { useState } from 'react';
-import { Header } from './components/Header';
-import { Hero } from './components/Hero';
-import { Features } from './components/Features';
-import { HowItWorks } from './components/HowItWorks';
-import { Metrics } from './components/Metrics';
-import { Testimonials } from './components/Testimonials';
-import { FAQ } from './components/FAQ';
-import { CTA } from './components/CTA';
-import { Footer } from './components/Footer';
+import { useState, lazy, Suspense } from 'react';
+
+const ScrollToTop = lazy(() =>
+  import('./components/ScrollToTop').then((m) => ({ default: m.ScrollToTop }))
+);
+
+const Header = lazy(() =>
+  import('./components/Header').then((m) => ({ default: m.Header }))
+);
+const Hero = lazy(() =>
+  import('./components/Hero').then((m) => ({ default: m.Hero }))
+);
+const Features = lazy(() =>
+  import('./components/Features').then((m) => ({ default: m.Features }))
+);
+const HowItWorks = lazy(() =>
+  import('./components/HowItWorks').then((m) => ({ default: m.HowItWorks }))
+);
+const Metrics = lazy(() =>
+  import('./components/Metrics').then((m) => ({ default: m.Metrics }))
+);
+const Testimonials = lazy(() =>
+  import('./components/Testimonials').then((m) => ({
+    default: m.Testimonials,
+  }))
+);
+const FAQ = lazy(() =>
+  import('./components/FAQ').then((m) => ({ default: m.FAQ }))
+);
+const CTA = lazy(() =>
+  import('./components/CTA').then((m) => ({ default: m.CTA }))
+);
+const Footer = lazy(() =>
+  import('./components/Footer').then((m) => ({ default: m.Footer }))
+);
+
+function HeroSkeleton() {
+  return (
+    <section className="relative overflow-hidden bg-white" aria-label="Loading">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-36 animate-pulse">
+        <div className="h-5 bg-neutral-200 rounded-full max-w-[200px] mb-6" />
+        <div className="h-12 bg-neutral-200 rounded-lg max-w-md mb-4" />
+        <div className="h-12 bg-neutral-100 rounded-lg max-w-sm mb-8" />
+        <div className="h-6 bg-neutral-200 rounded-lg max-w-lg mb-2" />
+        <div className="h-6 bg-neutral-100 rounded-lg max-w-md" />
+      </div>
+    </section>
+  );
+}
+
+function HeaderSkeleton() {
+  return (
+    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-neutral-200">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-neutral-200 rounded-lg animate-pulse" />
+            <div className="w-20 h-5 bg-neutral-200 rounded animate-pulse" />
+          </div>
+          <div className="hidden md:flex items-center gap-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="w-16 h-4 bg-neutral-200 rounded animate-pulse" />
+            ))}
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function SectionSkeleton() {
+  return (
+    <div className="animate-pulse py-20 sm:py-28" aria-hidden="true">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="h-8 bg-neutral-200 rounded-lg max-w-md mx-auto mb-4" />
+        <div className="h-5 bg-neutral-200 rounded-lg max-w-lg mx-auto mb-16" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-40 bg-neutral-100 rounded-xl" />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -20,20 +95,41 @@ export function App() {
       >
         Skip to main content
       </a>
-      <Header
-        mobileMenuOpen={mobileMenuOpen}
-        onToggleMobileMenu={() => setMobileMenuOpen((prev) => !prev)}
-      />
+      <Suspense fallback={<HeaderSkeleton />}>
+        <Header
+          mobileMenuOpen={mobileMenuOpen}
+          onToggleMobileMenu={() => setMobileMenuOpen((prev) => !prev)}
+        />
+      </Suspense>
       <main id="main-content">
-        <Hero />
-        <Features />
-        <HowItWorks />
-        <Metrics />
-        <Testimonials />
-        <FAQ />
-        <CTA />
+        <Suspense fallback={<HeroSkeleton />}>
+          <Hero />
+        </Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <Features />
+        </Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <HowItWorks />
+        </Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <Metrics />
+        </Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <Testimonials />
+        </Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <FAQ />
+        </Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <CTA />
+        </Suspense>
       </main>
-      <Footer />
+      <Suspense fallback={<div className="h-32" aria-hidden="true" />}>
+        <Footer />
+      </Suspense>
+      <Suspense fallback={null}>
+        <ScrollToTop />
+      </Suspense>
     </div>
   );
 }

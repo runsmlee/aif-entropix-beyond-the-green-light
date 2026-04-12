@@ -1,20 +1,34 @@
-import { EntropyVisualization } from './EntropyVisualization';
+import { lazy, Suspense } from 'react';
+
+const EntropyVisualization = lazy(() =>
+  import('./EntropyVisualization').then((m) => ({
+    default: m.EntropyVisualization,
+  }))
+);
 
 export function Hero() {
   return (
     <section className="relative overflow-hidden bg-white" aria-labelledby="hero-heading">
+      {/* Background decoration */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/3" aria-hidden="true" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2" aria-hidden="true" />
+
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-36">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium mb-6 ring-1 ring-primary/20">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" aria-hidden="true" />
               Next-Generation Intelligence
             </div>
 
             <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-900 tracking-tight leading-tight">
               Beyond the{' '}
-              <span className="text-primary">Green Light</span>
+              <span className="text-primary relative">
+                Green Light
+                <svg className="absolute -bottom-1 left-0 w-full h-2 text-primary/30" viewBox="0 0 200 8" fill="none" aria-hidden="true">
+                  <path d="M1 5.5C47 2 87 1 131 3.5C154 4.5 175 5.5 199 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </span>
             </h1>
 
             <p className="mt-6 text-lg sm:text-xl text-neutral-600 leading-relaxed">
@@ -26,16 +40,16 @@ export function Hero() {
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <a
                 href="#cta"
-                className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                className="group inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30"
               >
                 Start Free Trial
-                <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <svg className="ml-2 w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </a>
               <a
                 href="#how-it-works"
-                className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 hover:border-neutral-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
               >
                 See How It Works
               </a>
@@ -66,11 +80,18 @@ export function Hero() {
           {/* Animated entropy visualization */}
           <div className="hidden lg:flex justify-center">
             <div className="relative pt-8 pb-12">
-              <EntropyVisualization />
+              <Suspense fallback={<div className="w-[200px] h-[200px] rounded-xl bg-neutral-100 animate-pulse" aria-hidden="true" />}>
+                <EntropyVisualization />
+              </Suspense>
               {/* Floating label */}
               <div className="absolute top-0 right-0 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md border border-neutral-200">
                 <div className="text-xs font-medium text-neutral-900">Entropy Heat Map</div>
                 <div className="text-xs text-neutral-500">Live simulation</div>
+              </div>
+              {/* Status indicator */}
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-white rounded-full px-3 py-1 shadow-sm border border-neutral-200">
+                <span className="w-2 h-2 rounded-full bg-success animate-pulse" aria-hidden="true" />
+                <span className="text-xs text-neutral-600 font-medium">Analyzing 3 signals</span>
               </div>
             </div>
           </div>

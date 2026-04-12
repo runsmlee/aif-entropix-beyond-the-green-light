@@ -44,7 +44,7 @@ function StepCard({
       }`}
       style={{ transitionDelay: `${index * 150}ms` }}
     >
-      <div className="relative z-10 w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-xl font-bold mx-auto mb-6 shadow-lg shadow-primary/20">
+      <div className="relative z-10 w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-xl font-bold mx-auto mb-6 shadow-lg shadow-primary/25 ring-4 ring-white">
         {step.step}
       </div>
       <h3 className="text-lg font-semibold text-neutral-900 mb-2">

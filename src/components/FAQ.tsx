@@ -48,7 +48,9 @@ export function FAQ() {
   }, []);
 
   return (
-    <section id="faq" className="py-20 sm:py-28 bg-neutral-50" aria-labelledby="faq-heading">
+    <section id="faq" className="py-20 sm:py-28 bg-neutral-50 relative" aria-labelledby="faq-heading">
+      {/* Subtle top border decoration */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-primary/30 to-transparent" aria-hidden="true" />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           ref={headingRef}

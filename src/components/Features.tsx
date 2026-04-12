@@ -75,12 +75,12 @@ function FeatureCard({
   return (
     <article
       ref={ref}
-      className={`bg-white rounded-xl p-6 border border-neutral-200 hover:border-primary/30 hover:shadow-lg transition-all duration-300 ${
+      className={`group bg-white rounded-xl p-6 border border-neutral-200 hover:border-primary/30 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
       }`}
       style={{ transitionDelay: `${index * 80}ms` }}
     >
-      <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4">
+      <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center mb-4 transition-colors duration-200 group-hover:bg-primary/20">
         {feature.icon}
       </div>
       <h3 className="text-lg font-semibold text-neutral-900 mb-2">
@@ -97,8 +97,10 @@ export function Features() {
   const { ref, isVisible } = useScrollAnimation();
 
   return (
-    <section id="features" className="py-20 sm:py-28 bg-neutral-50" aria-labelledby="features-heading">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="features" className="py-20 sm:py-28 bg-neutral-50 relative" aria-labelledby="features-heading">
+      {/* Subtle dot pattern background */}
+      <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'radial-gradient(circle, #d4d4d4 1px, transparent 1px)', backgroundSize: '24px 24px' }} aria-hidden="true" />
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           ref={ref}
           className={`text-center max-w-2xl mx-auto mb-16 transition-all duration-700 ease-out ${

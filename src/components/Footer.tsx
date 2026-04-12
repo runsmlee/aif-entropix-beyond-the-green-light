@@ -32,7 +32,9 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-neutral-50 border-t border-neutral-200" role="contentinfo">
+    <footer className="bg-neutral-50 border-t border-neutral-200 relative" role="contentinfo">
+      {/* Accent line */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" aria-hidden="true" />
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">

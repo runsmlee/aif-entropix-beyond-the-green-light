@@ -109,10 +109,14 @@ export function Metrics() {
     <section
       ref={sectionRef}
       id="metrics"
-      className="py-20 sm:py-28 bg-neutral-900"
+      className="py-20 sm:py-28 bg-neutral-900 relative overflow-hidden"
       aria-labelledby="metrics-heading"
     >
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Decorative gradient orbs */}
+      <div className="absolute top-0 left-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" aria-hidden="true" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl translate-x-1/2 translate-y-1/2" aria-hidden="true" />
+
+      <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <h2 id="metrics-heading" className="text-3xl sm:text-4xl font-bold text-white">
             Measured impact, not vanity metrics
@@ -124,7 +128,7 @@ export function Metrics() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {METRICS.map((metric) => (
-            <div key={metric.label} className="text-center">
+            <div key={metric.label} className="text-center p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
               <div className="mb-2">
                 <AnimatedCounter
                   target={metric.value}
