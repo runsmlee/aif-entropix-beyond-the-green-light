@@ -60,4 +60,12 @@ describe('Header', () => {
     const mobileNav = screen.getByLabelText('Mobile navigation');
     expect(mobileNav).toBeInTheDocument();
   });
+
+  it('closes mobile menu on Escape key press', () => {
+    let clicked = false;
+    const handleClick = () => { clicked = true; };
+    render(<Header mobileMenuOpen={true} onToggleMobileMenu={handleClick} />);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(clicked).toBe(true);
+  });
 });

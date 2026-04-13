@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useActiveSection } from '../hooks/useActiveSection';
 
 interface HeaderProps {
@@ -16,10 +16,25 @@ const NAV_ITEMS = [
 
 export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
   const activeSection = useActiveSection();
+  const mobileMenuRef = useRef<HTMLElement>(null);
 
   const handleNavClick = useCallback(() => {
     onToggleMobileMenu();
   }, [onToggleMobileMenu]);
+
+  // Close mobile menu on Escape key
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+
+    function handleKeyDown(e: KeyboardEvent): void {
+      if (e.key === 'Escape') {
+        onToggleMobileMenu();
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [mobileMenuOpen, onToggleMobileMenu]);
 
   return (
     <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-neutral-200">
@@ -80,6 +95,7 @@ export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
 
         {mobileMenuOpen && (
           <nav
+            ref={mobileMenuRef}
             id="mobile-menu"
             className="md:hidden py-4 border-t border-neutral-100"
             aria-label="Mobile navigation"

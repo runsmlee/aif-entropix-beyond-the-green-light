@@ -35,6 +35,9 @@ export function EntropyVisualization() {
     canvas.style.height = `${totalSize}px`;
     ctx.scale(dpr, dpr);
 
+    // Check for reduced motion preference
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     // Initialize cells with deterministic starting values
     if (cellsRef.current.length === 0) {
       for (let row = 0; row < GRID_SIZE; row++) {
@@ -43,12 +46,29 @@ export function EntropyVisualization() {
           cellsRef.current.push({
             x: col,
             y: row,
-            entropy: baseEntropy,
+            entropy: reducedMotion ? baseEntropy : 0.01,
             targetEntropy: baseEntropy,
-            speed: 0.015 + (col * 0.003 + row * 0.002),
+            speed: reducedMotion ? 1 : 0.015 + (col * 0.003 + row * 0.002),
           });
         }
       }
+    }
+
+    // For reduced motion: render a single static frame and stop
+    if (reducedMotion) {
+      ctx.clearRect(0, 0, totalSize, totalSize);
+      for (const cell of cellsRef.current) {
+        const px = PADDING + cell.x * (CELL_SIZE + GAP);
+        const py = PADDING + cell.y * (CELL_SIZE + GAP);
+        const radius = 4;
+        ctx.fillStyle = getEntropyColor(cell.entropy);
+        ctx.globalAlpha = 0.85;
+        ctx.beginPath();
+        ctx.roundRect(px, py, CELL_SIZE, CELL_SIZE, radius);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      return;
     }
 
     function getEntropyColor(entropy: number): string {

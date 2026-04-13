@@ -38,4 +38,10 @@ describe('LiveProbe', () => {
     render(<LiveProbe />);
     expect(screen.getByText(/no data leaves your browser/)).toBeInTheDocument();
   });
+
+  it('has an aria-live region for screen reader announcements', () => {
+    render(<LiveProbe />);
+    const liveRegion = document.querySelector('[aria-live="polite"]');
+    expect(liveRegion).toBeInTheDocument();
+  });
 });

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { CTA } from '../components/CTA';
 
@@ -35,5 +35,26 @@ describe('CTA', () => {
     render(<CTA />);
     const section = screen.getByRole('heading', { level: 2 }).closest('section');
     expect(section).toHaveAttribute('id', 'cta');
+  });
+
+  it('shows success state after form submission', () => {
+    render(<CTA />);
+    const emailInput = screen.getByLabelText('Email address');
+    const submitButton = screen.getByRole('button', { name: 'Start Free Trial' });
+
+    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
+    fireEvent.click(submitButton);
+
+    expect(screen.getByText(/You're on the list/)).toBeInTheDocument();
+    expect(screen.getByText('user@example.com')).toBeInTheDocument();
+    expect(screen.getByText('Trial link sent')).toBeInTheDocument();
+  });
+
+  it('does not submit with empty email', () => {
+    render(<CTA />);
+    const submitButton = screen.getByRole('button', { name: 'Start Free Trial' });
+    fireEvent.click(submitButton);
+    // Should still show the form, not success
+    expect(screen.getByText(/beyond the green light/)).toBeInTheDocument();
   });
 });

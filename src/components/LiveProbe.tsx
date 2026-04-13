@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 interface ProbePoint {
@@ -79,6 +79,20 @@ export function LiveProbe() {
   const [probeResults, setProbeResults] = useState<Map<string, ProbeResult>>(new Map());
   const [healthScore, setHealthScore] = useState<number | null>(null);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const intervalsRef = useRef<ReturnType<typeof setInterval>[]>([]);
+  const mountedRef = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      timersRef.current.forEach((t) => clearTimeout(t));
+      timersRef.current = [];
+      intervalsRef.current.forEach((i) => clearInterval(i));
+      intervalsRef.current = [];
+    };
+  }, []);
 
   const handleDemo = useCallback(() => {
     setUrl('api.example.com/health');
@@ -91,9 +105,11 @@ export function LiveProbe() {
     setIsComplete(false);
     setHealthScore(null);
 
-    // Clear previous timers
+    // Clear previous timers and intervals
     timersRef.current.forEach((t) => clearTimeout(t));
     timersRef.current = [];
+    intervalsRef.current.forEach((i) => clearInterval(i));
+    intervalsRef.current = [];
 
     const initialResults = new Map<string, ProbeResult>();
     const completedValues = new Map<string, number>();
@@ -107,6 +123,8 @@ export function LiveProbe() {
     PROBE_POINTS.forEach((point) => {
       // Start measuring
       const startTimer = setTimeout(() => {
+        if (!mountedRef.current) return;
+
         setProbeResults((prev) => {
           const next = new Map(prev);
           next.set(point.label, { status: 'measuring', progress: 0, value: 0, severity: 'low' });
@@ -115,6 +133,7 @@ export function LiveProbe() {
 
         // Animate progress over 3 seconds
         const progressInterval = setInterval(() => {
+          if (!mountedRef.current) return;
           setProbeResults((prev) => {
             const current = prev.get(point.label);
             if (!current || current.status !== 'measuring') return prev;
@@ -124,10 +143,13 @@ export function LiveProbe() {
             return next;
           });
         }, 100);
+        intervalsRef.current.push(progressInterval);
 
         // Complete after 3 seconds
         const completeTimer = setTimeout(() => {
           clearInterval(progressInterval);
+          if (!mountedRef.current) return;
+
           const { value, severity } = getDeterministicScore(point.label, targetUrl);
           completedValues.set(point.label, value);
 
@@ -146,7 +168,7 @@ export function LiveProbe() {
           }
         }, 3000);
 
-        timersRef.current.push(completeTimer as unknown as ReturnType<typeof setTimeout>);
+        timersRef.current.push(completeTimer);
       }, point.delay);
 
       timersRef.current.push(startTimer);
@@ -158,6 +180,11 @@ export function LiveProbe() {
       className="py-20 sm:py-28 bg-white"
       aria-labelledby="live-probe-heading"
     >
+      {/* Screen reader announcement for probe status */}
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {isRunning && 'Entropy probe is running...'}
+        {isComplete && healthScore !== null && `Probe complete. System health score: ${healthScore} out of 100.`}
+      </div>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           ref={ref}
