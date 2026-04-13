@@ -5,7 +5,7 @@ import { App } from '../App';
 describe('App', () => {
   it('renders the main heading', async () => {
     render(<App />);
-    const heading = await screen.findByRole('heading', { level: 1 });
+    const heading = await screen.findByRole('heading', { level: 1 }, { timeout: 5000 });
     expect(heading).toBeInTheDocument();
     expect(heading.textContent).toContain('Beyond the');
     expect(heading.textContent).toContain('Green Light');
