@@ -18,6 +18,7 @@ export function EntropyVisualization() {
   const animationRef = useRef<number>(0);
   const cellsRef = useRef<Cell[]>([]);
   const timeRef = useRef<number>(0);
+  const spikeRef = useRef<Map<string, number>>(new Map());
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -34,16 +35,17 @@ export function EntropyVisualization() {
     canvas.style.height = `${totalSize}px`;
     ctx.scale(dpr, dpr);
 
-    // Initialize cells
+    // Initialize cells with deterministic starting values
     if (cellsRef.current.length === 0) {
       for (let row = 0; row < GRID_SIZE; row++) {
         for (let col = 0; col < GRID_SIZE; col++) {
+          const baseEntropy = Math.sin(col * 0.7 + row * 0.4) * 0.15 + 0.25;
           cellsRef.current.push({
             x: col,
             y: row,
-            entropy: Math.random() * 0.3,
-            targetEntropy: Math.random() * 0.4,
-            speed: 0.01 + Math.random() * 0.03,
+            entropy: baseEntropy,
+            targetEntropy: baseEntropy,
+            speed: 0.015 + (col * 0.003 + row * 0.002),
           });
         }
       }
@@ -72,25 +74,69 @@ export function EntropyVisualization() {
       }
     }
 
+    function triggerSpikeCascade(time: number): void {
+      // Pick a deterministic "random" cell using time as seed
+      const seed = (time * 7 + 13) % (GRID_SIZE * GRID_SIZE);
+      const cx = seed % GRID_SIZE;
+      const cy = Math.floor(seed / GRID_SIZE);
+      const key = `${cx},${cy}`;
+      spikeRef.current.set(key, 0.92);
+
+      // Schedule neighbor spikes with delay
+      const neighbors: [number, number][] = [
+        [cx - 1, cy], [cx + 1, cy],
+        [cx, cy - 1], [cx, cy + 1],
+      ];
+      for (const [nx, ny] of neighbors) {
+        if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE) {
+          spikeRef.current.set(`${nx},${ny}`, 0.75);
+        }
+      }
+    }
+
     function animate(): void {
       if (!ctx) return;
       timeRef.current += 1;
       const time = timeRef.current;
 
+      // Trigger spike cascade every ~300 frames when no spikes active
+      if (time % 300 === 0 && spikeRef.current.size === 0) {
+        triggerSpikeCascade(time);
+      }
+
+      // Decay spike refs
+      const nextSpikes = new Map<string, number>();
+      for (const [key, intensity] of spikeRef.current) {
+        const decayed = intensity - 0.008;
+        if (decayed > 0.15) {
+          nextSpikes.set(key, decayed);
+        }
+      }
+      spikeRef.current = nextSpikes;
+
       ctx.clearRect(0, 0, totalSize, totalSize);
 
       for (const cell of cellsRef.current) {
-        // Slowly shift targets
-        if (time % 120 === Math.floor(Math.random() * 120)) {
-          cell.targetEntropy = Math.random() * 0.85 + 0.05;
+        // Deterministic target reassignment based on grid position and time
+        if (time % 180 === (cell.x * GRID_SIZE + cell.y) % 180) {
+          const baseSignal = Math.sin(time * 0.012 + cell.x * 0.7 + cell.y * 0.4) * 0.25 + 0.35;
+          const systemLoad = Math.sin(time * 0.003) * 0.15;
+          cell.targetEntropy = Math.max(0.05, Math.min(0.95, baseSignal + systemLoad));
+        }
+
+        // Check if this cell is spiking
+        const spikeKey = `${cell.x},${cell.y}`;
+        const spikeIntensity = spikeRef.current.get(spikeKey);
+        if (spikeIntensity !== undefined) {
+          cell.targetEntropy = Math.max(cell.targetEntropy, spikeIntensity);
         }
 
         // Lerp entropy toward target
         const diff = cell.targetEntropy - cell.entropy;
         cell.entropy += diff * cell.speed;
 
-        // Add some wave-based entropy variation
-        const wave = Math.sin(time * 0.02 + cell.x * 0.5 + cell.y * 0.3) * 0.15;
+        // Add wave-based entropy variation (temporal correlations)
+        const wave = Math.sin(time * 0.015 + cell.x * 0.8 + cell.y * 0.5) * 0.12;
         const displayEntropy = Math.max(0, Math.min(1, cell.entropy + wave));
 
         const px = PADDING + cell.x * (CELL_SIZE + GAP);
@@ -98,7 +144,7 @@ export function EntropyVisualization() {
         const radius = 4;
 
         ctx.fillStyle = getEntropyColor(displayEntropy);
-        ctx.globalAlpha = 0.85;
+        ctx.globalAlpha = spikeIntensity !== undefined ? 1 : 0.85;
 
         ctx.beginPath();
         ctx.roundRect(px, py, CELL_SIZE, CELL_SIZE, radius);

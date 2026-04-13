@@ -1,35 +1,119 @@
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
-interface TestimonialData {
-  quote: string;
-  author: string;
-  role: string;
-  company: string;
+interface ScenarioData {
+  title: string;
+  description: string;
+  detectionTime: string;
+  traditionalTime: string;
+  pattern: 'rise' | 'oscillation' | 'anomaly';
 }
 
-const TESTIMONIALS: TestimonialData[] = [
+const SCENARIOS: ScenarioData[] = [
   {
-    quote:
-      'We had "green across the board" for three weeks before a cascading failure took down payments. Entropix would have caught the entropy drift in our queue depths days earlier.',
-    author: 'Sarah Chen',
-    role: 'VP of Engineering',
-    company: 'StreamPay',
+    title: 'Memory leak masking',
+    description:
+      'Gradual entropy rise in heap allocation metrics revealed a slow memory leak 4 hours before OOM crash.',
+    detectionTime: '4 hours before failure',
+    traditionalTime: 'At crash — no warning',
+    pattern: 'rise',
   },
   {
-    quote:
-      'Our on-call team went from 2 AM pages every other night to maybe one a week. The predictive alerts are genuinely different from anything we tried before.',
-    author: 'Marcus Rivera',
-    role: 'SRE Lead',
-    company: 'DataForge',
+    title: 'Flapping service',
+    description:
+      'High-frequency entropy oscillations in a microservice detected degraded behavior in 8 minutes, not hours.',
+    detectionTime: '8 minutes',
+    traditionalTime: '3+ hours',
+    pattern: 'oscillation',
   },
   {
-    quote:
-      'The entropy heat map alone justified the investment. We could finally see why our "healthy" microservices were quietly degrading user experience.',
-    author: 'Aisha Patel',
-    role: 'Principal Engineer',
-    company: 'Nextera Systems',
+    title: 'Silent data corruption',
+    description:
+      'Entropy anomaly in database write patterns flagged corruption risk before any data loss occurred.',
+    detectionTime: 'Before data loss',
+    traditionalTime: 'After user reports',
+    pattern: 'anomaly',
   },
 ];
+
+function PatternIcon({ pattern }: { pattern: ScenarioData['pattern'] }) {
+  if (pattern === 'rise') {
+    return (
+      <svg className="w-8 h-8" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <rect x="2" y="22" width="6" height="8" rx="1" fill="#0EA5E9" opacity="0.4" />
+        <rect x="10" y="16" width="6" height="14" rx="1" fill="#0EA5E9" opacity="0.6" />
+        <rect x="18" y="10" width="6" height="20" rx="1" fill="#F59E0B" opacity="0.8" />
+        <rect x="26" y="4" width="4" height="26" rx="1" fill="#EF4444" opacity="0.9" />
+      </svg>
+    );
+  }
+  if (pattern === 'oscillation') {
+    return (
+      <svg className="w-8 h-8" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <path
+          d="M2 16 C6 8, 10 24, 14 16 C18 8, 22 24, 26 16 C28 12, 30 20, 30 16"
+          stroke="#0EA5E9"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          fill="none"
+        />
+      </svg>
+    );
+  }
+  // anomaly
+  return (
+    <svg className="w-8 h-8" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <path
+        d="M2 18 L8 18 L12 10 L16 24 L20 16 L24 18 L30 18"
+        stroke="#0EA5E9"
+        strokeWidth="2"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <circle cx="16" cy="24" r="3" fill="#EF4444" opacity="0.8" />
+    </svg>
+  );
+}
+
+function ScenarioCard({ scenario }: { scenario: ScenarioData }) {
+  const { ref, isVisible } = useScrollAnimation();
+
+  return (
+    <div
+      ref={ref}
+      className={`group bg-neutral-50 rounded-xl p-6 border border-neutral-200 transition-all duration-300 ease-out hover:border-primary/20 hover:shadow-md hover:-translate-y-1 ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+      }`}
+    >
+      <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10">
+          <PatternIcon pattern={scenario.pattern} />
+        </div>
+        <h3 className="text-base font-semibold text-neutral-900">{scenario.title}</h3>
+      </div>
+      <p className="text-sm text-neutral-700 leading-relaxed mb-5">
+        {scenario.description}
+      </p>
+      <div className="grid grid-cols-2 gap-3 pt-4 border-t border-neutral-200">
+        <div>
+          <div className="text-[11px] uppercase tracking-wider text-neutral-400 mb-1">
+            Entropix detection
+          </div>
+          <div className="text-sm font-semibold text-emerald-600">
+            {scenario.detectionTime}
+          </div>
+        </div>
+        <div>
+          <div className="text-[11px] uppercase tracking-wider text-neutral-400 mb-1">
+            Traditional monitoring
+          </div>
+          <div className="text-sm font-semibold text-red-500">
+            {scenario.traditionalTime}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function Testimonials() {
   const { ref, isVisible } = useScrollAnimation();
@@ -52,66 +136,20 @@ export function Testimonials() {
               id="testimonials-heading"
               className="text-3xl sm:text-4xl font-bold text-neutral-900"
             >
-              Trusted by teams who got burned by green lights
+              What entropy monitoring catches
             </h2>
             <p className="mt-4 text-lg text-neutral-600">
-              Engineers who moved beyond surface-level monitoring share what changed.
+              Real failure patterns that threshold-based alerts miss — until it&apos;s too late.
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {TESTIMONIALS.map((testimonial) => (
-            <TestimonialCard key={testimonial.author} testimonial={testimonial} />
+          {SCENARIOS.map((scenario) => (
+            <ScenarioCard key={scenario.title} scenario={scenario} />
           ))}
         </div>
       </div>
     </section>
-  );
-}
-
-function TestimonialCard({ testimonial }: { testimonial: TestimonialData }) {
-  const { ref, isVisible } = useScrollAnimation<HTMLQuoteElement>();
-
-  return (
-    <blockquote
-      ref={ref}
-      className={`group bg-neutral-50 rounded-xl p-6 border border-neutral-200 transition-all duration-300 ease-out hover:border-primary/20 hover:shadow-md hover:-translate-y-1 ${
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-      }`}
-    >
-      <div className="flex items-center gap-1 mb-4" aria-label="5 out of 5 stars">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <svg
-            key={i}
-            className="w-4 h-4 text-warning"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-            aria-hidden="true"
-          >
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-        ))}
-      </div>
-      <p className="text-sm text-neutral-700 leading-relaxed mb-6">
-        &ldquo;{testimonial.quote}&rdquo;
-      </p>
-      <footer className="flex items-center gap-3">
-        <div
-          className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-semibold"
-          aria-hidden="true"
-        >
-          {testimonial.author.charAt(0)}
-        </div>
-        <div>
-          <cite className="text-sm font-semibold text-neutral-900 not-italic">
-            {testimonial.author}
-          </cite>
-          <div className="text-xs text-neutral-500">
-            {testimonial.role}, {testimonial.company}
-          </div>
-        </div>
-      </footer>
-    </blockquote>
   );
 }

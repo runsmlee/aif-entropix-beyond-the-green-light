@@ -5,14 +5,16 @@ interface MetricData {
   value: number;
   suffix: string;
   description: string;
+  isCounter?: boolean;
 }
 
-const METRICS: MetricData[] = [
+const BASE_METRICS: MetricData[] = [
   {
     label: 'Incidents Prevented',
     value: 1247,
     suffix: '+',
     description: 'Caught before they triggered alerts',
+    isCounter: true,
   },
   {
     label: 'Mean Time to Detection',
@@ -31,6 +33,7 @@ const METRICS: MetricData[] = [
     value: 380,
     suffix: '+',
     description: 'Across production environments worldwide',
+    isCounter: true,
   },
 ];
 
@@ -84,6 +87,11 @@ function AnimatedCounter({
 export function Metrics() {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+  const incidentsRef = useRef<number>(1247);
+  const teamsRef = useRef<number>(380);
+  const sessionTodayRef = useRef<number>(0);
+  const [liveMetrics, setLiveMetrics] = useState<MetricData[]>(BASE_METRICS);
+  const [todayCount, setTodayCount] = useState(0);
 
   const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
     const [entry] = entries;
@@ -104,6 +112,50 @@ export function Metrics() {
 
     return () => observer.disconnect();
   }, [handleIntersection]);
+
+  // Live counter increments once visible
+  useEffect(() => {
+    if (!isVisible) return;
+
+    // Incidents: +1 to +3 every ~8 seconds
+    const incidentsInterval = setInterval(() => {
+      const increment = 1 + Math.floor(Math.abs(Math.sin(Date.now() * 0.001)) * 2.99);
+      incidentsRef.current += increment;
+      sessionTodayRef.current += increment;
+
+      setLiveMetrics((prev) =>
+        prev.map((m) =>
+          m.label === 'Incidents Prevented'
+            ? { ...m, value: incidentsRef.current }
+            : m
+        )
+      );
+    }, 8000);
+
+    // Teams: +1 every ~45 seconds
+    const teamsInterval = setInterval(() => {
+      teamsRef.current += 1;
+      setLiveMetrics((prev) =>
+        prev.map((m) =>
+          m.label === 'Teams Deployed'
+            ? { ...m, value: teamsRef.current }
+            : m
+        )
+      );
+    }, 45000);
+
+    // Today badge: +1 every ~12 seconds
+    const todayInterval = setInterval(() => {
+      sessionTodayRef.current += 1;
+      setTodayCount(sessionTodayRef.current);
+    }, 12000);
+
+    return () => {
+      clearInterval(incidentsInterval);
+      clearInterval(teamsInterval);
+      clearInterval(todayInterval);
+    };
+  }, [isVisible]);
 
   return (
     <section
@@ -127,8 +179,8 @@ export function Metrics() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {METRICS.map((metric) => (
-            <div key={metric.label} className="text-center p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+          {liveMetrics.map((metric) => (
+            <div key={metric.label} className="text-center p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm relative">
               <div className="mb-2">
                 <AnimatedCounter
                   target={metric.value}
@@ -136,12 +188,23 @@ export function Metrics() {
                   isVisible={isVisible}
                 />
               </div>
-              <div className="text-sm font-medium text-white mb-1">
+              <div className="text-sm font-medium text-white mb-1 flex items-center justify-center gap-2">
                 {metric.label}
+                {metric.label === 'Incidents Prevented' && todayCount > 0 && (
+                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30">
+                    +{todayCount} today
+                  </span>
+                )}
               </div>
               <div className="text-xs text-neutral-500">
                 {metric.description}
               </div>
+              {metric.isCounter && (
+                <div className="mt-2 flex items-center justify-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
+                  <span className="text-[10px] text-emerald-400/70 font-medium">Live</span>
+                </div>
+              )}
             </div>
           ))}
         </div>

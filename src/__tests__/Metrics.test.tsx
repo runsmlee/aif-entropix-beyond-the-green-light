@@ -26,11 +26,10 @@ describe('Metrics', () => {
     expect(screen.getByText('Across production environments worldwide')).toBeInTheDocument();
   });
 
-  it('renders metric values with suffixes', () => {
+  it('renders live indicators for counter metrics', () => {
     render(<Metrics />);
-    // The animated counter should render (even if 0 due to IntersectionObserver mock)
-    const metricSection = screen.getByRole('heading', { level: 2 }).closest('section');
-    expect(metricSection).toBeInTheDocument();
+    const liveIndicators = screen.getAllByText('Live');
+    expect(liveIndicators.length).toBeGreaterThanOrEqual(2);
   });
 
   it('has the correct section id for navigation', () => {

@@ -7,23 +7,40 @@ describe('Testimonials', () => {
     render(<Testimonials />);
     const heading = screen.getByRole('heading', { level: 2 });
     expect(heading).toBeInTheDocument();
-    expect(heading.textContent).toContain('Trusted by teams');
+    expect(heading.textContent).toContain('What entropy monitoring catches');
   });
 
-  it('renders all three testimonial quotes', () => {
+  it('renders all three scenario titles', () => {
     render(<Testimonials />);
-    expect(screen.getByText(/cascading failure/)).toBeInTheDocument();
-    expect(screen.getByText(/on-call team/)).toBeInTheDocument();
-    expect(screen.getByText(/entropy heat map/)).toBeInTheDocument();
+    expect(screen.getByText('Memory leak masking')).toBeInTheDocument();
+    expect(screen.getByText('Flapping service')).toBeInTheDocument();
+    expect(screen.getByText('Silent data corruption')).toBeInTheDocument();
   });
 
-  it('renders author names and companies', () => {
+  it('renders detection time comparisons', () => {
     render(<Testimonials />);
-    expect(screen.getByText('Sarah Chen')).toBeInTheDocument();
-    expect(screen.getByText('Marcus Rivera')).toBeInTheDocument();
-    expect(screen.getByText('Aisha Patel')).toBeInTheDocument();
-    expect(screen.getByText(/StreamPay/)).toBeInTheDocument();
-    expect(screen.getByText(/DataForge/)).toBeInTheDocument();
-    expect(screen.getByText(/Nextera/)).toBeInTheDocument();
+    expect(screen.getByText('4 hours before failure')).toBeInTheDocument();
+    expect(screen.getByText('8 minutes')).toBeInTheDocument();
+    expect(screen.getByText('Before data loss')).toBeInTheDocument();
+  });
+
+  it('renders traditional monitoring comparisons', () => {
+    render(<Testimonials />);
+    expect(screen.getByText('At crash — no warning')).toBeInTheDocument();
+    expect(screen.getByText('3+ hours')).toBeInTheDocument();
+    expect(screen.getByText('After user reports')).toBeInTheDocument();
+  });
+
+  it('renders scenario descriptions', () => {
+    render(<Testimonials />);
+    expect(screen.getByText(/heap allocation metrics/)).toBeInTheDocument();
+    expect(screen.getByText(/High-frequency entropy/)).toBeInTheDocument();
+    expect(screen.getByText(/database write patterns/)).toBeInTheDocument();
+  });
+
+  it('has the correct section id for navigation', () => {
+    render(<Testimonials />);
+    const section = screen.getByRole('heading', { level: 2 }).closest('section');
+    expect(section).toHaveAttribute('id', 'testimonials');
   });
 });

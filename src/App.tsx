@@ -16,6 +16,9 @@ const Features = lazy(() =>
 const HowItWorks = lazy(() =>
   import('./components/HowItWorks').then((m) => ({ default: m.HowItWorks }))
 );
+const LiveProbe = lazy(() =>
+  import('./components/LiveProbe').then((m) => ({ default: m.LiveProbe }))
+);
 const Metrics = lazy(() =>
   import('./components/Metrics').then((m) => ({ default: m.Metrics }))
 );
@@ -110,6 +113,9 @@ export function App() {
         </Suspense>
         <Suspense fallback={<SectionSkeleton />}>
           <HowItWorks />
+        </Suspense>
+        <Suspense fallback={<SectionSkeleton />}>
+          <LiveProbe />
         </Suspense>
         <Suspense fallback={<SectionSkeleton />}>
           <Metrics />
