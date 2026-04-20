@@ -89,6 +89,14 @@ function FeatureCard({
       <p className="text-neutral-600 text-sm leading-relaxed">
         {feature.description}
       </p>
+      <div className="mt-4 pt-4 border-t border-neutral-100">
+        <span className="inline-flex items-center gap-1.5 text-xs font-medium text-primary group-hover:text-primary-dark transition-colors">
+          Learn more
+          <svg className="w-3 h-3 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </span>
+      </div>
     </article>
   );
 }

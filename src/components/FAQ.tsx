@@ -111,17 +111,17 @@ function FAQAccordionItem({ item, isOpen, onToggle, id }: FAQAccordionItemProps)
           <span className="text-sm sm:text-base font-semibold text-neutral-900">
             {item.question}
           </span>
-          <svg
-            className={`w-5 h-5 text-neutral-500 shrink-0 transition-transform duration-300 ${
-              isOpen ? 'rotate-180' : ''
-            }`}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            aria-hidden="true"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
+          <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300 ${isOpen ? 'bg-primary/10' : 'bg-neutral-100'}`}>
+            <svg
+              className={`w-3.5 h-3.5 transition-all duration-300 ${isOpen ? 'rotate-180 text-primary' : 'text-neutral-500'}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </button>
       </h3>
       <div

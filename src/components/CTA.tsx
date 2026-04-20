@@ -18,6 +18,7 @@ export function CTA() {
           <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent" aria-hidden="true" />
           {/* Decorative dots */}
           <div className="absolute top-6 right-6 w-24 h-24 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '8px 8px' }} aria-hidden="true" />
+          <div className="absolute bottom-6 left-6 w-16 h-16 opacity-5" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '8px 8px' }} aria-hidden="true" />
           <div className="relative px-6 py-16 sm:px-12 sm:py-20 lg:px-16 lg:py-24 text-center">
             {submitted ? (
               <>

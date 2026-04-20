@@ -98,7 +98,8 @@ function ScenarioCard({ scenario }: { scenario: ScenarioData }) {
           <div className="text-[11px] uppercase tracking-wider text-neutral-400 mb-1">
             Entropix detection
           </div>
-          <div className="text-sm font-semibold text-emerald-600">
+          <div className="text-sm font-semibold text-emerald-600 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
             {scenario.detectionTime}
           </div>
         </div>
@@ -106,7 +107,8 @@ function ScenarioCard({ scenario }: { scenario: ScenarioData }) {
           <div className="text-[11px] uppercase tracking-wider text-neutral-400 mb-1">
             Traditional monitoring
           </div>
-          <div className="text-sm font-semibold text-red-500">
+          <div className="text-sm font-semibold text-red-500 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-red-500" aria-hidden="true" />
             {scenario.traditionalTime}
           </div>
         </div>

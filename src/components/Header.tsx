@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useActiveSection } from '../hooks/useActiveSection';
 
 interface HeaderProps {
@@ -17,6 +17,15 @@ const NAV_ITEMS = [
 export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
   const activeSection = useActiveSection();
   const mobileMenuRef = useRef<HTMLElement>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    function handleScroll(): void {
+      setIsScrolled(window.scrollY > 10);
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleNavClick = useCallback(() => {
     onToggleMobileMenu();
@@ -37,7 +46,7 @@ export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
   }, [mobileMenuOpen, onToggleMobileMenu]);
 
   return (
-    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-neutral-200">
+    <header className={`sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b transition-shadow duration-300 ${isScrolled ? 'border-neutral-200 shadow-sm' : 'border-neutral-200/50'}`}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <a href="/" className="flex items-center gap-2" aria-label="Entropix home">

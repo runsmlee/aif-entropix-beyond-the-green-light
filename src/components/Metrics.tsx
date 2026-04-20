@@ -180,7 +180,7 @@ export function Metrics() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {liveMetrics.map((metric) => (
-            <div key={metric.label} className="text-center p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm relative">
+            <div key={metric.label} className="text-center p-6 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm relative group hover:bg-white/10 transition-colors duration-300">
               <div className="mb-2">
                 <AnimatedCounter
                   target={metric.value}

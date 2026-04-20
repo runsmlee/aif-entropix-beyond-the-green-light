@@ -98,6 +98,14 @@ export function LiveProbe() {
     setUrl('api.example.com/health');
   }, []);
 
+  const handleReset = useCallback(() => {
+    setUrl('');
+    setIsRunning(false);
+    setIsComplete(false);
+    setProbeResults(new Map());
+    setHealthScore(null);
+  }, []);
+
   const handleProbe = useCallback(() => {
     const targetUrl = url.trim() || 'api.example.com/health';
     setUrl(targetUrl);
@@ -305,11 +313,23 @@ export function LiveProbe() {
               <div className="text-sm text-neutral-600">
                 Based on 8 entropy probe measurements
               </div>
-              <div className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 text-xs text-neutral-500">
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Demo Simulation — scores are illustrative
+              <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 text-xs text-neutral-500">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Demo Simulation — scores are illustrative
+                </div>
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-600 bg-white border border-neutral-200 rounded-full hover:bg-neutral-50 hover:border-neutral-300 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Run Another Probe
+                </button>
               </div>
             </div>
           )}
