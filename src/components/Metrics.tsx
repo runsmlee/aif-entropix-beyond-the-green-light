@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, memo } from 'react';
 
 interface MetricData {
   label: string;
@@ -37,7 +37,7 @@ const BASE_METRICS: MetricData[] = [
   },
 ];
 
-function AnimatedCounter({
+const AnimatedCounter = memo(function AnimatedCounter({
   target,
   suffix,
   isVisible,
@@ -77,12 +77,12 @@ function AnimatedCounter({
   }, [target, isVisible]);
 
   return (
-    <span className="text-4xl sm:text-5xl font-bold text-primary">
+    <span className="text-4xl sm:text-5xl font-bold text-primary" aria-label={`${target.toLocaleString()}${suffix}`}>
       {count.toLocaleString()}
       {suffix}
     </span>
   );
-}
+});
 
 export function Metrics() {
   const [isVisible, setIsVisible] = useState(false);
@@ -117,7 +117,6 @@ export function Metrics() {
   useEffect(() => {
     if (!isVisible) return;
 
-    // Incidents: +1 to +3 every ~8 seconds
     const incidentsInterval = setInterval(() => {
       const increment = 1 + Math.floor(Math.abs(Math.sin(Date.now() * 0.001)) * 2.99);
       incidentsRef.current += increment;
@@ -132,7 +131,6 @@ export function Metrics() {
       );
     }, 8000);
 
-    // Teams: +1 every ~45 seconds
     const teamsInterval = setInterval(() => {
       teamsRef.current += 1;
       setLiveMetrics((prev) =>
@@ -144,7 +142,6 @@ export function Metrics() {
       );
     }, 45000);
 
-    // Today badge: +1 every ~12 seconds
     const todayInterval = setInterval(() => {
       sessionTodayRef.current += 1;
       setTodayCount(sessionTodayRef.current);
@@ -200,7 +197,7 @@ export function Metrics() {
                 {metric.description}
               </div>
               {metric.isCounter && (
-                <div className="mt-2 flex items-center justify-center gap-1">
+                <div className="mt-2 flex items-center justify-center gap-1" role="status" aria-label={`${metric.label} counter is live`}>
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" aria-hidden="true" />
                   <span className="text-[10px] text-emerald-400/70 font-medium">Live</span>
                 </div>

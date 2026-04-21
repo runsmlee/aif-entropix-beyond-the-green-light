@@ -1,15 +1,12 @@
 import { useState, lazy, Suspense } from 'react';
+import { Header } from './components/Header';
+import { Hero } from './components/Hero';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 const ScrollToTop = lazy(() =>
   import('./components/ScrollToTop').then((m) => ({ default: m.ScrollToTop }))
 );
 
-const Header = lazy(() =>
-  import('./components/Header').then((m) => ({ default: m.Header }))
-);
-const Hero = lazy(() =>
-  import('./components/Hero').then((m) => ({ default: m.Hero }))
-);
 const Features = lazy(() =>
   import('./components/Features').then((m) => ({ default: m.Features }))
 );
@@ -37,40 +34,6 @@ const Footer = lazy(() =>
   import('./components/Footer').then((m) => ({ default: m.Footer }))
 );
 
-function HeroSkeleton() {
-  return (
-    <section className="relative overflow-hidden bg-white" aria-label="Loading">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28 lg:py-36 animate-pulse">
-        <div className="h-5 bg-neutral-200 rounded-full max-w-[200px] mb-6" />
-        <div className="h-12 bg-neutral-200 rounded-lg max-w-md mb-4" />
-        <div className="h-12 bg-neutral-100 rounded-lg max-w-sm mb-8" />
-        <div className="h-6 bg-neutral-200 rounded-lg max-w-lg mb-2" />
-        <div className="h-6 bg-neutral-100 rounded-lg max-w-md" />
-      </div>
-    </section>
-  );
-}
-
-function HeaderSkeleton() {
-  return (
-    <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-neutral-200">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-neutral-200 rounded-lg animate-pulse" />
-            <div className="w-20 h-5 bg-neutral-200 rounded animate-pulse" />
-          </div>
-          <div className="hidden md:flex items-center gap-4">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="w-16 h-4 bg-neutral-200 rounded animate-pulse" />
-            ))}
-          </div>
-        </div>
-      </div>
-    </header>
-  );
-}
-
 function SectionSkeleton() {
   return (
     <div className="animate-pulse py-20 sm:py-28" aria-hidden="true">
@@ -87,6 +50,14 @@ function SectionSkeleton() {
   );
 }
 
+function SectionErrorFallback() {
+  return (
+    <div className="py-12 text-center" role="alert">
+      <p className="text-neutral-500 text-sm">This section failed to load. Please refresh the page.</p>
+    </div>
+  );
+}
+
 export function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -98,44 +69,58 @@ export function App() {
       >
         Skip to main content
       </a>
-      <Suspense fallback={<HeaderSkeleton />}>
-        <Header
-          mobileMenuOpen={mobileMenuOpen}
-          onToggleMobileMenu={() => setMobileMenuOpen((prev) => !prev)}
-        />
-      </Suspense>
+      <Header
+        mobileMenuOpen={mobileMenuOpen}
+        onToggleMobileMenu={() => setMobileMenuOpen((prev: boolean) => !prev)}
+      />
       <main id="main-content">
-        <Suspense fallback={<HeroSkeleton />}>
-          <Hero />
-        </Suspense>
-        <Suspense fallback={<SectionSkeleton />}>
-          <Features />
-        </Suspense>
-        <Suspense fallback={<SectionSkeleton />}>
-          <HowItWorks />
-        </Suspense>
-        <Suspense fallback={<SectionSkeleton />}>
-          <LiveProbe />
-        </Suspense>
-        <Suspense fallback={<SectionSkeleton />}>
-          <Metrics />
-        </Suspense>
-        <Suspense fallback={<SectionSkeleton />}>
-          <Testimonials />
-        </Suspense>
-        <Suspense fallback={<SectionSkeleton />}>
-          <FAQ />
-        </Suspense>
-        <Suspense fallback={<SectionSkeleton />}>
-          <CTA />
-        </Suspense>
+        <Hero />
+        <ErrorBoundary fallback={<SectionErrorFallback />}>
+          <Suspense fallback={<SectionSkeleton />}>
+            <Features />
+          </Suspense>
+        </ErrorBoundary>
+        <ErrorBoundary fallback={<SectionErrorFallback />}>
+          <Suspense fallback={<SectionSkeleton />}>
+            <HowItWorks />
+          </Suspense>
+        </ErrorBoundary>
+        <ErrorBoundary fallback={<SectionErrorFallback />}>
+          <Suspense fallback={<SectionSkeleton />}>
+            <LiveProbe />
+          </Suspense>
+        </ErrorBoundary>
+        <ErrorBoundary fallback={<SectionErrorFallback />}>
+          <Suspense fallback={<SectionSkeleton />}>
+            <Metrics />
+          </Suspense>
+        </ErrorBoundary>
+        <ErrorBoundary fallback={<SectionErrorFallback />}>
+          <Suspense fallback={<SectionSkeleton />}>
+            <Testimonials />
+          </Suspense>
+        </ErrorBoundary>
+        <ErrorBoundary fallback={<SectionErrorFallback />}>
+          <Suspense fallback={<SectionSkeleton />}>
+            <FAQ />
+          </Suspense>
+        </ErrorBoundary>
+        <ErrorBoundary fallback={<SectionErrorFallback />}>
+          <Suspense fallback={<SectionSkeleton />}>
+            <CTA />
+          </Suspense>
+        </ErrorBoundary>
       </main>
-      <Suspense fallback={<div className="h-32" aria-hidden="true" />}>
-        <Footer />
-      </Suspense>
-      <Suspense fallback={null}>
-        <ScrollToTop />
-      </Suspense>
+      <ErrorBoundary>
+        <Suspense fallback={<div className="h-32" aria-hidden="true" />}>
+          <Footer />
+        </Suspense>
+      </ErrorBoundary>
+      <ErrorBoundary>
+        <Suspense fallback={null}>
+          <ScrollToTop />
+        </Suspense>
+      </ErrorBoundary>
     </div>
   );
 }

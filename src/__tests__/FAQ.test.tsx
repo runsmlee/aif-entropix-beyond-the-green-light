@@ -49,4 +49,37 @@ describe('FAQ', () => {
     expect(firstButton.getAttribute('aria-expanded')).toBe('false');
     expect(secondButton.getAttribute('aria-expanded')).toBe('true');
   });
+
+  it('supports keyboard navigation with arrow keys', () => {
+    render(<FAQ />);
+    const buttons = screen.getAllByRole('button');
+    const firstButton = buttons[0]!;
+    const secondButton = buttons[1]!;
+
+    // Focus the first button and press ArrowDown
+    firstButton.focus();
+    fireEvent.keyDown(firstButton, { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(secondButton);
+
+    // Press ArrowUp to go back
+    fireEvent.keyDown(secondButton, { key: 'ArrowUp' });
+    expect(document.activeElement).toBe(firstButton);
+  });
+
+  it('supports Home and End keys for keyboard navigation', () => {
+    render(<FAQ />);
+    const buttons = screen.getAllByRole('button');
+    const middleButton = buttons[2]!;
+    const firstButton = buttons[0]!;
+    const lastButton = buttons[buttons.length - 1]!;
+
+    // Press Home from middle button
+    middleButton.focus();
+    fireEvent.keyDown(middleButton, { key: 'Home' });
+    expect(document.activeElement).toBe(firstButton);
+
+    // Press End from first button
+    fireEvent.keyDown(firstButton, { key: 'End' });
+    expect(document.activeElement).toBe(lastButton);
+  });
 });

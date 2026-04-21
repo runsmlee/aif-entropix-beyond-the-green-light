@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 interface FAQItem {
@@ -42,10 +42,35 @@ const FAQ_DATA: FAQItem[] = [
 export function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const { ref: headingRef, isVisible: headingVisible } = useScrollAnimation();
+  const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const toggleItem = useCallback((index: number) => {
     setOpenIndex((prev) => (prev === index ? null : index));
   }, []);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent, index: number) => {
+      let targetIndex = -1;
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        targetIndex = (index + 1) % FAQ_DATA.length;
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        targetIndex = (index - 1 + FAQ_DATA.length) % FAQ_DATA.length;
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        targetIndex = 0;
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        targetIndex = FAQ_DATA.length - 1;
+      }
+
+      if (targetIndex >= 0) {
+        buttonRefs.current[targetIndex]?.focus();
+      }
+    },
+    []
+  );
 
   return (
     <section id="faq" className="py-20 sm:py-28 bg-neutral-50 relative" aria-labelledby="faq-heading">
@@ -73,6 +98,8 @@ export function FAQ() {
               item={item}
               isOpen={openIndex === index}
               onToggle={() => toggleItem(index)}
+              onKeyDown={(e) => handleKeyDown(e, index)}
+              buttonRef={(el) => { buttonRefs.current[index] = el; }}
               id={`faq-${index}`}
             />
           ))}
@@ -86,10 +113,12 @@ interface FAQAccordionItemProps {
   item: FAQItem;
   isOpen: boolean;
   onToggle: () => void;
+  onKeyDown: (e: React.KeyboardEvent) => void;
+  buttonRef: (el: HTMLButtonElement | null) => void;
   id: string;
 }
 
-function FAQAccordionItem({ item, isOpen, onToggle, id }: FAQAccordionItemProps) {
+function FAQAccordionItem({ item, isOpen, onToggle, onKeyDown, buttonRef, id }: FAQAccordionItemProps) {
   return (
     <div
       className={`rounded-xl border transition-all duration-300 ${
@@ -101,9 +130,11 @@ function FAQAccordionItem({ item, isOpen, onToggle, id }: FAQAccordionItemProps)
     >
       <h3>
         <button
+          ref={buttonRef}
           type="button"
           className="w-full text-left px-6 py-5 flex items-center justify-between gap-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-xl"
           onClick={onToggle}
+          onKeyDown={onKeyDown}
           aria-expanded={isOpen}
           aria-controls={`${id}-panel`}
           id={`${id}-button`}

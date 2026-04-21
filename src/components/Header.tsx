@@ -17,6 +17,7 @@ const NAV_ITEMS = [
 export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
   const activeSection = useActiveSection();
   const mobileMenuRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -31,13 +32,32 @@ export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
     onToggleMobileMenu();
   }, [onToggleMobileMenu]);
 
-  // Close mobile menu on Escape key
+  // Close mobile menu on Escape key and manage focus trap
   useEffect(() => {
     if (!mobileMenuOpen) return;
 
     function handleKeyDown(e: KeyboardEvent): void {
       if (e.key === 'Escape') {
         onToggleMobileMenu();
+        menuButtonRef.current?.focus();
+        return;
+      }
+
+      // Focus trap: Tab and Shift+Tab stay within mobile menu
+      if (e.key === 'Tab' && mobileMenuRef.current) {
+        const focusableElements = mobileMenuRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button, [tabindex]:not([tabindex="-1"])'
+        );
+        const firstFocusable = focusableElements[0];
+        const lastFocusable = focusableElements[focusableElements.length - 1];
+
+        if (e.shiftKey && document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable?.focus();
+        } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable?.focus();
+        }
       }
     }
 
@@ -83,6 +103,7 @@ export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
           </nav>
 
           <button
+            ref={menuButtonRef}
             type="button"
             className="md:hidden inline-flex items-center justify-center w-10 h-10 rounded-lg text-neutral-600 hover:bg-neutral-100 transition-colors"
             onClick={onToggleMobileMenu}
