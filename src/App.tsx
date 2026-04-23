@@ -1,7 +1,10 @@
 import { useState, lazy, Suspense } from 'react';
 import { Header } from './components/Header';
-import { Hero } from './components/Hero';
 import { ErrorBoundary } from './components/ErrorBoundary';
+
+const Hero = lazy(() =>
+  import('./components/Hero').then((m) => ({ default: m.Hero }))
+);
 
 const ScrollToTop = lazy(() =>
   import('./components/ScrollToTop').then((m) => ({ default: m.ScrollToTop }))
@@ -74,7 +77,11 @@ export function App() {
         onToggleMobileMenu={() => setMobileMenuOpen((prev: boolean) => !prev)}
       />
       <main id="main-content">
-        <Hero />
+        <ErrorBoundary fallback={<SectionErrorFallback />}>
+          <Suspense fallback={<SectionSkeleton />}>
+            <Hero />
+          </Suspense>
+        </ErrorBoundary>
         <ErrorBoundary fallback={<SectionErrorFallback />}>
           <Suspense fallback={<SectionSkeleton />}>
             <Features />

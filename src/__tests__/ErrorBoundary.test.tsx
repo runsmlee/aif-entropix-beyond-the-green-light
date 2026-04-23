@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 
 function ThrowingComponent(): never {
