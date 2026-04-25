@@ -81,7 +81,7 @@ export function Hero() {
             </div>
           </div>
 
-          {/* Animated entropy visualization */}
+          {/* Animated entropy visualization — desktop */}
           <div className="hidden lg:flex justify-center">
             <div className="relative pt-8 pb-12">
               <Suspense fallback={<div className="w-[200px] h-[200px] rounded-xl bg-neutral-100 animate-pulse" aria-hidden="true" />}>
@@ -96,6 +96,30 @@ export function Hero() {
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-white rounded-full px-3 py-1 shadow-sm border border-neutral-200">
                 <span className="w-2 h-2 rounded-full bg-success animate-pulse" aria-hidden="true" />
                 <span className="text-xs text-neutral-600 font-medium">Analyzing 3 signals</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile entropy summary card */}
+          <div className="flex lg:hidden justify-center mt-4" aria-hidden="true">
+            <div className="bg-white rounded-xl border border-neutral-200 shadow-sm p-4 w-full max-w-sm">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-medium text-neutral-900">System Entropy</span>
+                <span className="inline-flex items-center gap-1.5 text-xs text-success font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+                  Live
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {[{ label: 'CPU', value: 0.12, color: 'bg-emerald-400' }, { label: 'I/O', value: 0.28, color: 'bg-amber-400' }, { label: 'Net', value: 0.08, color: 'bg-emerald-400' }].map((signal) => (
+                  <div key={signal.label} className="text-center">
+                    <div className="text-[10px] text-neutral-500 mb-1">{signal.label}</div>
+                    <div className="h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${signal.color}`} style={{ width: `${Math.min(signal.value * 100 * 2, 100)}%` }} />
+                    </div>
+                    <div className="text-[10px] text-neutral-400 mt-0.5">{signal.value.toFixed(2)}</div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

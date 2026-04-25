@@ -75,7 +75,7 @@ function FeatureCard({
   return (
     <article
       ref={ref}
-      className={`group bg-white rounded-xl p-6 border border-neutral-200 hover:border-primary/30 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ${
+      className={`group bg-white rounded-xl p-6 border border-neutral-200 hover:border-primary/30 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'
       }`}
       style={{ transitionDelay: `${index * 80}ms` }}

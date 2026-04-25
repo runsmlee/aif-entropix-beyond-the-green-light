@@ -66,7 +66,7 @@ export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
   }, [mobileMenuOpen, onToggleMobileMenu]);
 
   return (
-    <header className={`sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b transition-shadow duration-300 ${isScrolled ? 'border-neutral-200 shadow-sm' : 'border-neutral-200/50'}`}>
+    <header className={`sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b transition-all duration-300 ${isScrolled ? 'border-neutral-200 shadow-md' : 'border-neutral-200/50'}`}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <a href="/" className="flex items-center gap-2" aria-label="Entropix home">

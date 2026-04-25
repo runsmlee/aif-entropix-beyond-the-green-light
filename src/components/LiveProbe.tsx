@@ -255,10 +255,22 @@ export function LiveProbe() {
               {PROBE_POINTS.map((point) => {
                 const result = probeResults.get(point.label);
                 if (!result) return null;
+                const isComplete = result.status === 'complete';
+                const barColor = isComplete
+                  ? result.severity === 'low'
+                    ? 'bg-emerald-500'
+                    : result.severity === 'moderate'
+                      ? 'bg-amber-500'
+                      : 'bg-red-500'
+                  : result.status === 'measuring'
+                    ? 'bg-primary'
+                    : 'bg-neutral-200';
                 return (
                   <div
                     key={point.label}
-                    className="bg-white rounded-lg border border-neutral-200 p-4 transition-all duration-300"
+                    className={`bg-white rounded-lg border p-4 transition-all duration-300 ${
+                      isComplete ? 'border-neutral-200 shadow-sm' : 'border-neutral-200'
+                    }`}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm font-medium text-neutral-900">{point.label}</span>
@@ -273,17 +285,7 @@ export function LiveProbe() {
                     {/* Progress bar */}
                     <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all duration-200 ease-out ${
-                          result.status === 'complete'
-                            ? result.severity === 'low'
-                              ? 'bg-emerald-500'
-                              : result.severity === 'moderate'
-                                ? 'bg-amber-500'
-                                : 'bg-red-500'
-                            : result.status === 'measuring'
-                              ? 'bg-primary'
-                              : 'bg-neutral-200'
-                        }`}
+                        className={`h-full rounded-full transition-all duration-200 ease-out ${barColor}`}
                         style={{ width: `${result.progress}%` }}
                         role="progressbar"
                         aria-valuenow={result.progress}

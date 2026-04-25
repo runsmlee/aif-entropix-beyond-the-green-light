@@ -159,7 +159,7 @@ function FAQAccordionItem({ item, isOpen, onToggle, onKeyDown, buttonRef, id }: 
         id={`${id}-panel`}
         role="region"
         aria-labelledby={`${id}-button`}
-        className={isOpen ? 'block' : 'hidden'}
+        className={`overflow-hidden transition-all duration-300 ease-out ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}
       >
         <p className="px-6 pb-5 text-sm text-neutral-600 leading-relaxed">{item.answer}</p>
       </div>

@@ -80,7 +80,7 @@ function ScenarioCard({ scenario }: { scenario: ScenarioData }) {
   return (
     <div
       ref={ref}
-      className={`group bg-neutral-50 rounded-xl p-6 border border-neutral-200 transition-all duration-300 ease-out hover:border-primary/20 hover:shadow-md hover:-translate-y-1 ${
+      className={`group bg-neutral-50 rounded-xl p-6 border border-neutral-200 transition-all duration-300 ease-out hover:border-primary/20 hover:shadow-lg hover:-translate-y-1 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       }`}
     >
