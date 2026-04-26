@@ -28,13 +28,11 @@ interface ProbeResult {
 }
 
 function getDeterministicScore(label: string, url: string): { value: number; severity: 'low' | 'moderate' | 'high' } {
-  // Deterministic scoring based on label + url hash (no Math.random)
   let hash = 0;
   const input = label + url;
   for (let i = 0; i < input.length; i++) {
     hash = ((hash << 5) - hash + input.charCodeAt(i)) | 0;
   }
-  // Map hash to score range 0.05-0.45 (mostly green with a few amber)
   const normalized = (Math.abs(hash) % 100) / 100;
   const value = 0.05 + normalized * 0.40;
 
@@ -51,9 +49,7 @@ function computeHealthScore(results: Map<string, number>): number {
   let total = 0;
   results.forEach((v) => { total += v; });
   const avgEntropy = total / results.size;
-  // Lower entropy = higher health score
   const health = 100 - avgEntropy * 100;
-  // Clamp to 85-95 range for demo
   return Math.max(85, Math.min(95, Math.round(health)));
 }
 
@@ -71,6 +67,36 @@ function SeverityBadge({ severity }: { severity: ProbeResult['severity'] }) {
   );
 }
 
+function HealthScoreGauge({ score }: { score: number }) {
+  const circumference = 2 * Math.PI * 45;
+  const strokeDashoffset = circumference - (score / 100) * circumference;
+  const color = score >= 90 ? 'text-emerald-500' : score >= 80 ? 'text-amber-500' : 'text-red-500';
+  const strokeColor = score >= 90 ? 'stroke-emerald-500' : score >= 80 ? 'stroke-amber-500' : 'stroke-red-500';
+
+  return (
+    <div className="relative inline-flex items-center justify-center" aria-hidden="true">
+      <svg className="w-28 h-28 -rotate-90" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" fill="none" className="stroke-neutral-200" strokeWidth="6" />
+        <circle
+          cx="50"
+          cy="50"
+          r="45"
+          fill="none"
+          className={strokeColor}
+          strokeWidth="6"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          style={{ transition: 'stroke-dashoffset 1s ease-out' }}
+        />
+      </svg>
+      <div className={`absolute text-2xl font-bold ${color}`}>
+        {score}
+      </div>
+    </div>
+  );
+}
+
 export function LiveProbe() {
   const { ref, isVisible } = useScrollAnimation();
   const [url, setUrl] = useState('');
@@ -78,6 +104,7 @@ export function LiveProbe() {
   const [isComplete, setIsComplete] = useState(false);
   const [probeResults, setProbeResults] = useState<Map<string, ProbeResult>>(new Map());
   const [healthScore, setHealthScore] = useState<number | null>(null);
+  const [completedCount, setCompletedCount] = useState(0);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const intervalsRef = useRef<ReturnType<typeof setInterval>[]>([]);
   const mountedRef = useRef(true);
@@ -104,6 +131,7 @@ export function LiveProbe() {
     setIsComplete(false);
     setProbeResults(new Map());
     setHealthScore(null);
+    setCompletedCount(0);
   }, []);
 
   const handleProbe = useCallback(() => {
@@ -112,6 +140,7 @@ export function LiveProbe() {
     setIsRunning(true);
     setIsComplete(false);
     setHealthScore(null);
+    setCompletedCount(0);
 
     // Clear previous timers and intervals
     timersRef.current.forEach((t) => clearTimeout(t));
@@ -161,6 +190,8 @@ export function LiveProbe() {
           const { value, severity } = getDeterministicScore(point.label, targetUrl);
           completedValues.set(point.label, value);
 
+          setCompletedCount(completedValues.size);
+
           setProbeResults((prev) => {
             const next = new Map(prev);
             next.set(point.label, { status: 'complete', progress: 100, value, severity });
@@ -190,7 +221,7 @@ export function LiveProbe() {
     >
       {/* Screen reader announcement for probe status */}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
-        {isRunning && 'Entropy probe is running...'}
+        {isRunning && `Entropy probe is running... ${completedCount} of ${PROBE_POINTS.length} probes complete.`}
         {isComplete && healthScore !== null && `Probe complete. System health score: ${healthScore} out of 100.`}
       </div>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -243,7 +274,7 @@ export function LiveProbe() {
                   disabled={isRunning}
                   className="px-6 py-2.5 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                 >
-                  {isRunning ? 'Probing...' : 'Run Probe'}
+                  {isRunning ? `Probing (${completedCount}/${PROBE_POINTS.length})...` : 'Run Probe'}
                 </button>
               </div>
             </div>
@@ -308,14 +339,18 @@ export function LiveProbe() {
           {/* Health Score */}
           {isComplete && healthScore !== null && (
             <div className="bg-gradient-to-r from-primary/5 to-primary/10 rounded-xl border border-primary/20 p-6 text-center">
-              <div className="text-xs uppercase tracking-wider text-primary/70 font-medium mb-2">
-                System Health Score
+              <div className="flex flex-col items-center gap-4">
+                <HealthScoreGauge score={healthScore} />
+                <div>
+                  <div className="text-xs uppercase tracking-wider text-primary/70 font-medium mb-1">
+                    System Health Score
+                  </div>
+                  <div className="text-sm text-neutral-600">
+                    Based on {PROBE_POINTS.length} entropy probe measurements
+                  </div>
+                </div>
               </div>
-              <div className="text-5xl font-bold text-primary mb-2">{healthScore}</div>
-              <div className="text-sm text-neutral-600">
-                Based on 8 entropy probe measurements
-              </div>
-              <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 text-xs text-neutral-500">
                   <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />

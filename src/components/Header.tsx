@@ -14,6 +14,38 @@ const NAV_ITEMS = [
   { label: 'FAQ', href: '#faq' },
 ] as const;
 
+function ScrollProgress() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    function handleScroll(): void {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      setProgress(Math.min(100, scrollPercent));
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <div
+      className="absolute bottom-0 left-0 right-0 h-0.5 bg-neutral-200/50"
+      role="progressbar"
+      aria-valuenow={Math.round(progress)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label="Page scroll progress"
+    >
+      <div
+        className="h-full bg-primary transition-[width] duration-150 ease-out"
+        style={{ width: `${progress}%` }}
+      />
+    </div>
+  );
+}
+
 export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
   const activeSection = useActiveSection();
   const mobileMenuRef = useRef<HTMLElement>(null);
@@ -84,13 +116,16 @@ export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
                 <a
                   key={item.href}
                   href={item.href}
-                  className={`text-sm font-medium transition-colors duration-200 ${
+                  className={`text-sm font-medium transition-colors duration-200 relative py-1 ${
                     isActive
                       ? 'text-primary'
                       : 'text-neutral-600 hover:text-primary'
                   }`}
                 >
                   {item.label}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" aria-hidden="true" />
+                  )}
                 </a>
               );
             })}
@@ -160,6 +195,7 @@ export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
           </nav>
         )}
       </div>
+      {isScrolled && <ScrollProgress />}
     </header>
   );
 }

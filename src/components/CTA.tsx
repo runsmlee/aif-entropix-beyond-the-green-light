@@ -1,15 +1,55 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function CTA() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [emailError, setEmailError] = useState('');
 
-  const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (email.trim()) {
-      setSubmitted(true);
+  const isValidEmail = useMemo(() => EMAIL_REGEX.test(email.trim()), [email]);
+
+  const validateEmail = useCallback((value: string): string => {
+    const trimmed = value.trim();
+    if (!trimmed) return '';
+    if (!EMAIL_REGEX.test(trimmed)) {
+      return 'Please enter a valid email address';
     }
-  }, [email]);
+    return '';
+  }, []);
+
+  const handleEmailChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      setEmail(value);
+      // Clear error when user starts typing again
+      if (emailError) {
+        setEmailError(validateEmail(value));
+      }
+    },
+    [emailError, validateEmail]
+  );
+
+  const handleSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      const trimmed = email.trim();
+
+      if (!trimmed) {
+        setEmailError('Please enter your email address');
+        return;
+      }
+
+      if (!isValidEmail) {
+        setEmailError('Please enter a valid email address');
+        return;
+      }
+
+      setEmailError('');
+      setSubmitted(true);
+    },
+    [email, isValidEmail]
+  );
 
   return (
     <section id="cta" className="py-20 sm:py-28 bg-white" aria-labelledby="cta-heading">
@@ -62,20 +102,39 @@ export function CTA() {
                   className="mt-10 flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
                   onSubmit={handleSubmit}
                   aria-label="Sign up for free trial"
+                  noValidate
                 >
-                  <label htmlFor="email-input" className="sr-only">
-                    Email address
-                  </label>
-                  <input
-                    id="email-input"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your work email"
-                    required
-                    autoComplete="email"
-                    className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-neutral-400 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200"
-                  />
+                  <div className="flex-1">
+                    <label htmlFor="email-input" className="sr-only">
+                      Email address
+                    </label>
+                    <input
+                      id="email-input"
+                      type="email"
+                      value={email}
+                      onChange={handleEmailChange}
+                      onBlur={() => {
+                        if (email.trim()) {
+                          setEmailError(validateEmail(email));
+                        }
+                      }}
+                      placeholder="Enter your work email"
+                      required
+                      autoComplete="email"
+                      aria-invalid={emailError ? 'true' : undefined}
+                      aria-describedby={emailError ? 'email-error' : undefined}
+                      className={`w-full px-4 py-3 rounded-lg bg-white/10 border text-white placeholder-neutral-400 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-colors duration-200 ${
+                        emailError
+                          ? 'border-red-400 ring-1 ring-red-400/50'
+                          : 'border-white/20'
+                      }`}
+                    />
+                    {emailError && (
+                      <p id="email-error" className="mt-1.5 text-xs text-red-400 text-left" role="alert">
+                        {emailError}
+                      </p>
+                    )}
+                  </div>
                   <button
                     type="submit"
                     className="px-6 py-3 bg-primary text-white text-sm font-medium rounded-lg hover:bg-primary-dark transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-neutral-900 whitespace-nowrap"

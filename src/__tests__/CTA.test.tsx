@@ -37,7 +37,7 @@ describe('CTA', () => {
     expect(section).toHaveAttribute('id', 'cta');
   });
 
-  it('shows success state after form submission', () => {
+  it('shows success state after form submission with valid email', () => {
     render(<CTA />);
     const emailInput = screen.getByLabelText('Email address');
     const submitButton = screen.getByRole('button', { name: 'Start Free Trial' });
@@ -56,5 +56,68 @@ describe('CTA', () => {
     fireEvent.click(submitButton);
     // Should still show the form, not success
     expect(screen.getByText(/beyond the green light/)).toBeInTheDocument();
+  });
+
+  it('shows error for invalid email format on submit', () => {
+    render(<CTA />);
+    const emailInput = screen.getByLabelText('Email address');
+    const submitButton = screen.getByRole('button', { name: 'Start Free Trial' });
+
+    fireEvent.change(emailInput, { target: { value: 'not-an-email' } });
+    fireEvent.click(submitButton);
+
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(screen.getByText(/valid email/i)).toBeInTheDocument();
+    // Should still show the form heading
+    expect(screen.getByText(/beyond the green light/)).toBeInTheDocument();
+  });
+
+  it('shows error for whitespace-only email on submit', () => {
+    render(<CTA />);
+    const emailInput = screen.getByLabelText('Email address');
+    const submitButton = screen.getByRole('button', { name: 'Start Free Trial' });
+
+    fireEvent.change(emailInput, { target: { value: '   ' } });
+    fireEvent.click(submitButton);
+
+    // Should still show the form, not success state
+    expect(screen.getByText(/beyond the green light/)).toBeInTheDocument();
+  });
+
+  it('shows error when invalid email is entered and blurred', () => {
+    render(<CTA />);
+    const emailInput = screen.getByLabelText('Email address');
+
+    fireEvent.change(emailInput, { target: { value: 'bademail' } });
+    fireEvent.blur(emailInput);
+
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    expect(screen.getByText(/valid email/i)).toBeInTheDocument();
+  });
+
+  it('clears error when user corrects the email', () => {
+    render(<CTA />);
+    const emailInput = screen.getByLabelText('Email address');
+
+    // Trigger error
+    fireEvent.change(emailInput, { target: { value: 'bad' } });
+    fireEvent.blur(emailInput);
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+
+    // Fix the email
+    fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('sets aria-invalid on input when there is an error', () => {
+    render(<CTA />);
+    const emailInput = screen.getByLabelText('Email address');
+    const submitButton = screen.getByRole('button', { name: 'Start Free Trial' });
+
+    fireEvent.change(emailInput, { target: { value: 'invalid' } });
+    fireEvent.click(submitButton);
+
+    expect(emailInput).toHaveAttribute('aria-invalid', 'true');
+    expect(emailInput).toHaveAttribute('aria-describedby', 'email-error');
   });
 });

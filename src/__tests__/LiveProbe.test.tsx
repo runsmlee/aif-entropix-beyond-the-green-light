@@ -31,7 +31,7 @@ describe('LiveProbe', () => {
 
   it('renders the demo simulation disclaimer', () => {
     render(<LiveProbe />);
-    expect(screen.getByText(/demo simulation/)).toBeInTheDocument();
+    expect(screen.getByText(/demo simulation/i)).toBeInTheDocument();
   });
 
   it('renders description text about the demo', () => {
@@ -43,5 +43,10 @@ describe('LiveProbe', () => {
     render(<LiveProbe />);
     const liveRegion = document.querySelector('[aria-live="polite"]');
     expect(liveRegion).toBeInTheDocument();
+  });
+
+  it('renders the URL label', () => {
+    render(<LiveProbe />);
+    expect(screen.getByText('Enter a URL to probe')).toBeInTheDocument();
   });
 });

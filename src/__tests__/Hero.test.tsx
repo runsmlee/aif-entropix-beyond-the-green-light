@@ -24,4 +24,25 @@ describe('Hero', () => {
     expect(screen.getByText('14-day trial')).toBeInTheDocument();
     expect(screen.getByText('Cancel anytime')).toBeInTheDocument();
   });
+
+  it('renders the social proof counter', () => {
+    render(<Hero />);
+    expect(screen.getByText('Joined this month')).toBeInTheDocument();
+  });
+
+  it('renders the entropy heat map labels on desktop', () => {
+    render(<Hero />);
+    expect(screen.getByText('Entropy Heat Map')).toBeInTheDocument();
+    expect(screen.getByText('Live simulation')).toBeInTheDocument();
+  });
+
+  it('renders the badge with Next-Generation Intelligence text', () => {
+    render(<Hero />);
+    expect(screen.getByText('Next-Generation Intelligence')).toBeInTheDocument();
+  });
+
+  it('renders the analyzing signals indicator', () => {
+    render(<Hero />);
+    expect(screen.getByText('Analyzing 3 signals')).toBeInTheDocument();
+  });
 });

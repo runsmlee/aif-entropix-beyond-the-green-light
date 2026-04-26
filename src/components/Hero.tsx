@@ -1,10 +1,80 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useState, useEffect, useRef } from 'react';
 
 const EntropyVisualization = lazy(() =>
   import('./EntropyVisualization').then((m) => ({
     default: m.EntropyVisualization,
   }))
 );
+
+function SocialProofCounter() {
+  const [count, setCount] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const targetCount = 380;
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const duration = 1500;
+    const startTime = performance.now();
+
+    function animate(currentTime: number): void {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(targetCount * eased));
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    }
+
+    const id = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(id);
+  }, [isVisible]);
+
+  return (
+    <div ref={ref} className="mt-10 pt-8 border-t border-neutral-200/60">
+      <div className="flex items-center justify-start gap-6 text-sm text-neutral-500">
+        <div className="flex items-center gap-2">
+          <div className="flex -space-x-2" aria-hidden="true">
+            {['bg-primary', 'bg-sky-500', 'bg-amber-500', 'bg-emerald-500'].map((color, i) => (
+              <div
+                key={i}
+                className={`w-7 h-7 rounded-full ${color} ring-2 ring-white flex items-center justify-center text-white text-[10px] font-bold`}
+              >
+                {String.fromCharCode(65 + i)}
+              </div>
+            ))}
+          </div>
+          <span className="text-neutral-700 font-semibold" aria-label={`${targetCount}+ teams`}>
+            {count}+ teams
+          </span>
+        </div>
+        <span className="text-neutral-300" aria-hidden="true">|</span>
+        <span>Joined this month</span>
+      </div>
+    </div>
+  );
+}
 
 export function Hero() {
   return (
@@ -59,7 +129,7 @@ export function Hero() {
               </a>
             </div>
 
-            <div className="mt-12 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-neutral-500">
+            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-neutral-500">
               <div className="flex items-center gap-2">
                 <svg className="w-4 h-4 text-success" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -79,6 +149,9 @@ export function Hero() {
                 Cancel anytime
               </div>
             </div>
+
+            {/* Social proof */}
+            <SocialProofCounter />
           </div>
 
           {/* Animated entropy visualization — desktop */}
