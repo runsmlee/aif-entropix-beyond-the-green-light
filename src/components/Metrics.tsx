@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useCallback, memo } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
+import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 interface MetricData {
   label: string;
@@ -85,33 +86,12 @@ const AnimatedCounter = memo(function AnimatedCounter({
 });
 
 export function Metrics() {
-  const [isVisible, setIsVisible] = useState(false);
-  const sectionRef = useRef<HTMLElement>(null);
+  const { ref: sectionRef, isVisible } = useScrollAnimation<HTMLElement>({ threshold: 0.3 });
   const incidentsRef = useRef<number>(1247);
   const teamsRef = useRef<number>(380);
   const sessionTodayRef = useRef<number>(0);
   const [liveMetrics, setLiveMetrics] = useState<MetricData[]>(BASE_METRICS);
   const [todayCount, setTodayCount] = useState(0);
-
-  const handleIntersection = useCallback((entries: IntersectionObserverEntry[]) => {
-    const [entry] = entries;
-    if (entry?.isIntersecting) {
-      setIsVisible(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    const element = sectionRef.current;
-    if (!element) return;
-
-    const observer = new IntersectionObserver(handleIntersection, {
-      threshold: 0.3,
-    });
-
-    observer.observe(element);
-
-    return () => observer.disconnect();
-  }, [handleIntersection]);
 
   // Live counter increments once visible
   useEffect(() => {

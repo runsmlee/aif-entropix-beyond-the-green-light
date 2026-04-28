@@ -1,4 +1,5 @@
-import { lazy, Suspense, useState, useEffect, useRef } from 'react';
+import { lazy, Suspense, useState, useEffect } from 'react';
+import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 const EntropyVisualization = lazy(() =>
   import('./EntropyVisualization').then((m) => ({
@@ -8,27 +9,8 @@ const EntropyVisualization = lazy(() =>
 
 function SocialProofCounter() {
   const [count, setCount] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const { ref, isVisible } = useScrollAnimation<HTMLDivElement>({ threshold: 0.1 });
   const targetCount = 380;
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry?.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
 
   useEffect(() => {
     if (!isVisible) return;
