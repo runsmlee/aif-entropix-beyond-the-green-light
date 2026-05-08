@@ -156,12 +156,16 @@ export function Hero() {
           </div>
 
           {/* Mobile entropy summary card */}
-          <div className="flex lg:hidden justify-center mt-4" aria-hidden="true">
-            <div className="bg-white rounded-xl border border-neutral-200 shadow-sm p-4 w-full max-w-sm">
+          <div className="flex lg:hidden justify-center mt-4">
+            <div
+              className="bg-white rounded-xl border border-neutral-200 shadow-sm p-4 w-full max-w-sm"
+              role="region"
+              aria-label="System entropy summary"
+            >
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-medium text-neutral-900">System Entropy</span>
                 <span className="inline-flex items-center gap-1.5 text-xs text-success font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" aria-hidden="true" />
                   Live
                 </span>
               </div>
@@ -170,7 +174,15 @@ export function Hero() {
                   <div key={signal.label} className="text-center">
                     <div className="text-[10px] text-neutral-500 mb-1">{signal.label}</div>
                     <div className="h-1.5 bg-neutral-100 rounded-full overflow-hidden">
-                      <div className={`h-full rounded-full ${signal.color}`} style={{ width: `${Math.min(signal.value * 100 * 2, 100)}%` }} />
+                      <div
+                        className={`h-full rounded-full ${signal.color}`}
+                        style={{ width: `${Math.min(signal.value * 100 * 2, 100)}%` }}
+                        role="progressbar"
+                        aria-valuenow={Math.round(signal.value * 100)}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={`${signal.label} entropy: ${Math.round(signal.value * 100)}%`}
+                      />
                     </div>
                     <div className="text-[10px] text-neutral-400 mt-0.5">{signal.value.toFixed(2)}</div>
                   </div>

@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useActiveSection } from '../hooks/useActiveSection';
+import { useScrollPosition } from '../hooks/useScrollPosition';
 
 interface HeaderProps {
   mobileMenuOpen: boolean;
@@ -14,21 +15,7 @@ const NAV_ITEMS = [
   { label: 'FAQ', href: '#faq' },
 ] as const;
 
-function ScrollProgress() {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    function handleScroll(): void {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-      setProgress(Math.min(100, scrollPercent));
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
+function ScrollProgress({ progress }: { progress: number }) {
   return (
     <div
       className="absolute bottom-0 left-0 right-0 h-0.5 bg-neutral-200/50"
@@ -48,17 +35,9 @@ function ScrollProgress() {
 
 export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
   const activeSection = useActiveSection();
+  const { isScrolled, progress } = useScrollPosition({ scrolledThreshold: 10 });
   const mobileMenuRef = useRef<HTMLElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    function handleScroll(): void {
-      setIsScrolled(window.scrollY > 10);
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const handleNavClick = useCallback(() => {
     onToggleMobileMenu();
@@ -180,7 +159,7 @@ export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
                         : 'text-neutral-600 hover:text-primary hover:bg-neutral-50'
                     }`}
                   >
-                    {item.label}
+                      {item.label}
                   </a>
                 );
               })}
@@ -195,7 +174,7 @@ export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
           </nav>
         )}
       </div>
-      {isScrolled && <ScrollProgress />}
+      {isScrolled && <ScrollProgress progress={progress} />}
     </header>
   );
 }

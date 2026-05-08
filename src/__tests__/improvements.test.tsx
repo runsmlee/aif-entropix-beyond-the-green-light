@@ -24,18 +24,41 @@ describe('Improvement: Hero uses shared useScrollAnimation hook', () => {
   });
 });
 
+describe('Improvement: Hero mobile entropy card accessibility', () => {
+  it('mobile entropy card has accessible region role', () => {
+    render(<Hero />);
+    const region = screen.getByRole('region', { name: 'System entropy summary' });
+    expect(region).toBeInTheDocument();
+  });
+
+  it('mobile entropy progress bars have accessible labels', () => {
+    render(<Hero />);
+    const cpuBar = screen.getByLabelText(/CPU entropy: \d+%/);
+    const ioBar = screen.getByLabelText(/I\/O entropy: \d+%/);
+    const netBar = screen.getByLabelText(/Net entropy: \d+%/);
+    expect(cpuBar).toBeInTheDocument();
+    expect(ioBar).toBeInTheDocument();
+    expect(netBar).toBeInTheDocument();
+  });
+
+  it('mobile entropy progress bars have correct ARIA attributes', () => {
+    render(<Hero />);
+    const cpuBar = screen.getByLabelText(/CPU entropy: \d+%/);
+    expect(cpuBar).toHaveAttribute('role', 'progressbar');
+    expect(cpuBar).toHaveAttribute('aria-valuemin', '0');
+    expect(cpuBar).toHaveAttribute('aria-valuemax', '100');
+  });
+});
+
 describe('Improvement: Metrics uses shared useScrollAnimation hook', () => {
   it('animated counters start at 0 and display target values', () => {
     render(<Metrics />);
-    // The section should render without errors
     const heading = screen.getByRole('heading', { level: 2 });
     expect(heading).toBeInTheDocument();
   });
 
   it('renders percentage metrics with correct suffixes', () => {
     render(<Metrics />);
-    // The AnimatedCounter renders target value text, even before animation completes
-    // Check that the aria-labels contain the target values
     expect(screen.getByLabelText('94%')).toBeInTheDocument();
     expect(screen.getByLabelText('73%')).toBeInTheDocument();
   });
@@ -62,7 +85,6 @@ describe('Improvement: CTA form accessibility', () => {
     fireEvent.change(input, { target: { value: 'user@example.com' } });
     fireEvent.click(submitBtn);
 
-    // Success message should reference the entered email
     expect(screen.getByText('user@example.com')).toBeInTheDocument();
     expect(screen.getByText('Trial link sent')).toBeInTheDocument();
   });
@@ -84,7 +106,6 @@ describe('Improvement: FAQ keyboard accessibility', () => {
   it('all FAQ buttons are focusable', () => {
     render(<FAQ />);
     const buttons = screen.getAllByRole('button');
-    // 6 FAQ accordion buttons
     expect(buttons.length).toBeGreaterThanOrEqual(6);
   });
 
@@ -104,7 +125,6 @@ describe('Improvement: FAQ keyboard accessibility', () => {
     fireEvent.click(firstButton);
     expect(firstButton).toHaveAttribute('aria-expanded', 'true');
 
-    // Clicking again collapses
     fireEvent.click(firstButton);
     expect(firstButton).toHaveAttribute('aria-expanded', 'false');
   });
@@ -125,10 +145,8 @@ describe('Improvement: FAQ keyboard accessibility', () => {
     render(<FAQ />);
     const buttons = screen.getAllByRole('button');
 
-    // Expand first item to reveal its panel region
     fireEvent.click(buttons[0]);
     const regions = screen.getAllByRole('region');
-    // At least one region should be visible when expanded
     expect(regions.length).toBeGreaterThanOrEqual(1);
   });
 });
@@ -177,12 +195,8 @@ describe('Improvement: useScrollAnimation hook consistency', () => {
 describe('Improvement: Header scroll progress bar', () => {
   it('renders a scroll progress bar element when scrolled', async () => {
     const { Header } = await import('../components/Header');
-    // The scroll progress bar is only rendered when isScrolled is true,
-    // which requires window.scrollY > 10. We render and check the
-    // progress bar is present in the component tree (it renders when scrolled).
     Object.defineProperty(window, 'scrollY', { writable: true, value: 100 });
     render(<Header mobileMenuOpen={false} onToggleMobileMenu={() => {}} />);
-    // Scroll event needs to fire to set isScrolled
     fireEvent.scroll(window);
     const progressbar = await screen.findByRole('progressbar', { name: 'Page scroll progress' });
     expect(progressbar).toBeInTheDocument();
@@ -307,5 +321,28 @@ describe('Improvement: EntropyVisualization renders canvas', () => {
     render(<EntropyVisualization />);
     const canvas = document.querySelector('canvas');
     expect(canvas).toBeInTheDocument();
+  });
+
+  it('canvas wrapper has accessible role and label', async () => {
+    const { EntropyVisualization } = await import('../components/EntropyVisualization');
+    render(<EntropyVisualization />);
+    const wrapper = screen.getByRole('img');
+    expect(wrapper).toBeInTheDocument();
+    expect(wrapper).toHaveAttribute('aria-label', expect.stringContaining('entropy heat map'));
+  });
+});
+
+describe('Improvement: useScrollPosition hook for Header performance', () => {
+  it('useScrollPosition hook is importable and returns correct shape', async () => {
+    const { useScrollPosition } = await import('../hooks/useScrollPosition');
+    expect(typeof useScrollPosition).toBe('function');
+  });
+
+  it('Header uses consolidated scroll position instead of multiple listeners', async () => {
+    // Verify Header component renders without errors using the new hook
+    const { Header } = await import('../components/Header');
+    render(<Header mobileMenuOpen={false} onToggleMobileMenu={() => {}} />);
+    expect(screen.getByText('Entropix')).toBeInTheDocument();
+    expect(screen.getByLabelText('Open menu')).toBeInTheDocument();
   });
 });

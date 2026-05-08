@@ -13,6 +13,29 @@ interface Cell {
   speed: number;
 }
 
+function getEntropyColor(entropy: number): string {
+  // Low entropy = green/teal, high entropy = red/orange
+  if (entropy < 0.3) {
+    const t = entropy / 0.3;
+    const r = Math.round(34 + t * 34);
+    const g = Math.round(197 - t * 60);
+    const b = Math.round(94 + t * 20);
+    return `rgb(${r}, ${g}, ${b})`;
+  } else if (entropy < 0.6) {
+    const t = (entropy - 0.3) / 0.3;
+    const r = Math.round(68 + t * 177);
+    const g = Math.round(137 - t * 37);
+    const b = Math.round(114 - t * 74);
+    return `rgb(${r}, ${g}, ${b})`;
+  } else {
+    const t = (entropy - 0.6) / 0.4;
+    const r = Math.round(245 - t * 6);
+    const g = Math.round(100 - t * 32);
+    const b = Math.round(40);
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+}
+
 export function EntropyVisualization() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
@@ -71,38 +94,14 @@ export function EntropyVisualization() {
       return;
     }
 
-    function getEntropyColor(entropy: number): string {
-      // Low entropy = green/teal, high entropy = red/orange
-      if (entropy < 0.3) {
-        const t = entropy / 0.3;
-        const r = Math.round(34 + t * (34));
-        const g = Math.round(197 - t * 60);
-        const b = Math.round(94 + t * 20);
-        return `rgb(${r}, ${g}, ${b})`;
-      } else if (entropy < 0.6) {
-        const t = (entropy - 0.3) / 0.3;
-        const r = Math.round(68 + t * (177));
-        const g = Math.round(137 - t * (37));
-        const b = Math.round(114 - t * (74));
-        return `rgb(${r}, ${g}, ${b})`;
-      } else {
-        const t = (entropy - 0.6) / 0.4;
-        const r = Math.round(245 - t * 6);
-        const g = Math.round(100 - t * 32);
-        const b = Math.round(40 - t * 0);
-        return `rgb(${r}, ${g}, ${b})`;
-      }
-    }
-
     function triggerSpikeCascade(time: number): void {
       // Pick a deterministic "random" cell using time as seed
       const seed = (time * 7 + 13) % (GRID_SIZE * GRID_SIZE);
       const cx = seed % GRID_SIZE;
       const cy = Math.floor(seed / GRID_SIZE);
-      const key = `${cx},${cy}`;
-      spikeRef.current.set(key, 0.92);
+      spikeRef.current.set(`${cx},${cy}`, 0.92);
 
-      // Schedule neighbor spikes with delay
+      // Schedule neighbor spikes
       const neighbors: [number, number][] = [
         [cx - 1, cy], [cx + 1, cy],
         [cx, cy - 1], [cx, cy + 1],
@@ -186,13 +185,13 @@ export function EntropyVisualization() {
   }, []);
 
   return (
-    <div className="relative" aria-hidden="true">
+    <div className="relative" role="img" aria-label="Animated entropy heat map visualization showing system signal disorder across an 8 by 8 grid. Green indicates low entropy, amber indicates moderate, and red indicates high.">
       <canvas
         ref={canvasRef}
         className="rounded-xl shadow-2xl ring-1 ring-neutral-200/50"
       />
-      {/* Legend */}
-      <div className="absolute -bottom-8 left-0 right-0 flex items-center justify-center gap-2 text-xs text-neutral-400">
+      {/* Accessible color legend */}
+      <div className="absolute -bottom-8 left-0 right-0 flex items-center justify-center gap-2 text-xs text-neutral-400" aria-hidden="true">
         <span>Low entropy</span>
         <div className="flex gap-0.5">
           <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'rgb(34, 197, 94)' }} />
