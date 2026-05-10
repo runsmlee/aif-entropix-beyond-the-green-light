@@ -100,7 +100,6 @@ export function Metrics() {
     const incidentsInterval = setInterval(() => {
       const increment = 1 + Math.floor(Math.abs(Math.sin(Date.now() * 0.001)) * 2.99);
       incidentsRef.current += increment;
-      sessionTodayRef.current += increment;
 
       setLiveMetrics((prev) =>
         prev.map((m) =>

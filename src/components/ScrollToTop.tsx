@@ -21,6 +21,7 @@ export function ScrollToTop() {
       type="button"
       onClick={scrollToTop}
       aria-label="Scroll to top"
+      tabIndex={isVisible ? 0 : -1}
       className={`fixed bottom-6 right-6 z-50 w-11 h-11 rounded-full bg-primary text-white shadow-lg shadow-primary/25 flex items-center justify-center transition-all duration-300 hover:bg-primary-dark hover:shadow-xl hover:shadow-primary/30 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
         isVisible
           ? 'opacity-100 translate-y-0'

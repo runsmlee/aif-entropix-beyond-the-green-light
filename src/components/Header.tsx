@@ -143,6 +143,8 @@ export function Header({ mobileMenuOpen, onToggleMobileMenu }: HeaderProps) {
             id="mobile-menu"
             className="md:hidden py-4 border-t border-neutral-100"
             aria-label="Mobile navigation"
+            role="dialog"
+            aria-modal="true"
           >
             <div className="flex flex-col gap-2">
               {NAV_ITEMS.map((item) => {
