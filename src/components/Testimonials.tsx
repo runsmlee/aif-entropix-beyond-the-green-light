@@ -78,14 +78,14 @@ function ScenarioCard({ scenario }: { scenario: ScenarioData }) {
   const { ref, isVisible } = useScrollAnimation();
 
   return (
-    <div
+    <article
       ref={ref}
       className={`group bg-neutral-50 rounded-xl p-6 border border-neutral-200 transition-all duration-300 ease-out hover:border-primary/20 hover:shadow-lg hover:-translate-y-1 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
       }`}
     >
       <div className="flex items-center gap-3 mb-4">
-        <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10">
+        <div className="flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10" aria-hidden="true">
           <PatternIcon pattern={scenario.pattern} />
         </div>
         <h3 className="text-base font-semibold text-neutral-900">{scenario.title}</h3>
@@ -113,7 +113,7 @@ function ScenarioCard({ scenario }: { scenario: ScenarioData }) {
           </div>
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
 const GRID_SIZE = 8;
 const CELL_SIZE = 20;
@@ -36,12 +36,62 @@ function getEntropyColor(entropy: number): string {
   }
 }
 
+function initializeCells(reducedMotion: boolean): Cell[] {
+  const cells: Cell[] = [];
+  for (let row = 0; row < GRID_SIZE; row++) {
+    for (let col = 0; col < GRID_SIZE; col++) {
+      const baseEntropy = Math.sin(col * 0.7 + row * 0.4) * 0.15 + 0.25;
+      cells.push({
+        x: col,
+        y: row,
+        entropy: reducedMotion ? baseEntropy : 0.01,
+        targetEntropy: baseEntropy,
+        speed: reducedMotion ? 1 : 0.015 + (col * 0.003 + row * 0.002),
+      });
+    }
+  }
+  return cells;
+}
+
+function triggerSpikeCascade(
+  time: number,
+  spikeRef: React.MutableRefObject<Map<string, number>>
+): void {
+  const seed = (time * 7 + 13) % (GRID_SIZE * GRID_SIZE);
+  const cx = seed % GRID_SIZE;
+  const cy = Math.floor(seed / GRID_SIZE);
+  spikeRef.current.set(`${cx},${cy}`, 0.92);
+
+  const neighbors: [number, number][] = [
+    [cx - 1, cy], [cx + 1, cy],
+    [cx, cy - 1], [cx, cy + 1],
+  ];
+  for (const [nx, ny] of neighbors) {
+    if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE) {
+      spikeRef.current.set(`${nx},${ny}`, 0.75);
+    }
+  }
+}
+
 export function EntropyVisualization() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>(0);
   const cellsRef = useRef<Cell[]>([]);
   const timeRef = useRef<number>(0);
   const spikeRef = useRef<Map<string, number>>(new Map());
+  const mountedRef = useRef(true);
+
+  const getTotalSize = useCallback(
+    () => PADDING * 2 + GRID_SIZE * (CELL_SIZE + GAP) - GAP,
+    []
+  );
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -50,7 +100,7 @@ export function EntropyVisualization() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const totalSize = PADDING * 2 + GRID_SIZE * (CELL_SIZE + GAP) - GAP;
+    const totalSize = getTotalSize();
     const dpr = window.devicePixelRatio || 1;
     canvas.width = totalSize * dpr;
     canvas.height = totalSize * dpr;
@@ -63,18 +113,7 @@ export function EntropyVisualization() {
 
     // Initialize cells with deterministic starting values
     if (cellsRef.current.length === 0) {
-      for (let row = 0; row < GRID_SIZE; row++) {
-        for (let col = 0; col < GRID_SIZE; col++) {
-          const baseEntropy = Math.sin(col * 0.7 + row * 0.4) * 0.15 + 0.25;
-          cellsRef.current.push({
-            x: col,
-            y: row,
-            entropy: reducedMotion ? baseEntropy : 0.01,
-            targetEntropy: baseEntropy,
-            speed: reducedMotion ? 1 : 0.015 + (col * 0.003 + row * 0.002),
-          });
-        }
-      }
+      cellsRef.current = initializeCells(reducedMotion);
     }
 
     // For reduced motion: render a single static frame and stop
@@ -94,33 +133,14 @@ export function EntropyVisualization() {
       return;
     }
 
-    function triggerSpikeCascade(time: number): void {
-      // Pick a deterministic "random" cell using time as seed
-      const seed = (time * 7 + 13) % (GRID_SIZE * GRID_SIZE);
-      const cx = seed % GRID_SIZE;
-      const cy = Math.floor(seed / GRID_SIZE);
-      spikeRef.current.set(`${cx},${cy}`, 0.92);
-
-      // Schedule neighbor spikes
-      const neighbors: [number, number][] = [
-        [cx - 1, cy], [cx + 1, cy],
-        [cx, cy - 1], [cx, cy + 1],
-      ];
-      for (const [nx, ny] of neighbors) {
-        if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE) {
-          spikeRef.current.set(`${nx},${ny}`, 0.75);
-        }
-      }
-    }
-
     function animate(): void {
-      if (!ctx) return;
+      if (!ctx || !mountedRef.current) return;
       timeRef.current += 1;
       const time = timeRef.current;
 
       // Trigger spike cascade every ~300 frames when no spikes active
       if (time % 300 === 0 && spikeRef.current.size === 0) {
-        triggerSpikeCascade(time);
+        triggerSpikeCascade(time, spikeRef);
       }
 
       // Decay spike refs
@@ -182,7 +202,7 @@ export function EntropyVisualization() {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, []);
+  }, [getTotalSize]);
 
   return (
     <div className="relative" role="img" aria-label="Animated entropy heat map visualization showing system signal disorder across an 8 by 8 grid. Green indicates low entropy, amber indicates moderate, and red indicates high.">

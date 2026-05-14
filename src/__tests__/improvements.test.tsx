@@ -8,6 +8,7 @@ import { LiveProbe } from '../components/LiveProbe';
 import { Features } from '../components/Features';
 import { HowItWorks } from '../components/HowItWorks';
 import { Footer } from '../components/Footer';
+import { Testimonials } from '../components/Testimonials';
 
 describe('Improvement: Hero uses shared useScrollAnimation hook', () => {
   it('social proof counter becomes visible when scrolled into view', () => {
@@ -330,6 +331,24 @@ describe('Improvement: EntropyVisualization renders canvas', () => {
     expect(wrapper).toBeInTheDocument();
     expect(wrapper).toHaveAttribute('aria-label', expect.stringContaining('entropy heat map'));
   });
+
+  it('canvas renders with correct dimensions', async () => {
+    const { EntropyVisualization } = await import('../components/EntropyVisualization');
+    render(<EntropyVisualization />);
+    const canvas = document.querySelector('canvas');
+    expect(canvas).toBeInTheDocument();
+    // Canvas should have explicit width/height styles set for HiDPI
+    expect(canvas?.style.width).toBeTruthy();
+    expect(canvas?.style.height).toBeTruthy();
+  });
+
+  it('canvas color legend is present for accessibility', async () => {
+    const { EntropyVisualization } = await import('../components/EntropyVisualization');
+    render(<EntropyVisualization />);
+    // The legend shows "Low entropy" and "High entropy" text
+    expect(screen.getByText('Low entropy')).toBeInTheDocument();
+    expect(screen.getByText('High entropy')).toBeInTheDocument();
+  });
 });
 
 describe('Improvement: useScrollPosition hook for Header performance', () => {
@@ -344,5 +363,31 @@ describe('Improvement: useScrollPosition hook for Header performance', () => {
     render(<Header mobileMenuOpen={false} onToggleMobileMenu={() => {}} />);
     expect(screen.getByText('Entropix')).toBeInTheDocument();
     expect(screen.getByLabelText('Open menu')).toBeInTheDocument();
+  });
+});
+
+describe('Improvement: Testimonials scenario cards use article semantics', () => {
+  it('scenario cards are rendered as articles', () => {
+    render(<Testimonials />);
+    const articles = screen.getAllByRole('article');
+    expect(articles.length).toBe(3);
+  });
+
+  it('scenario pattern icons are hidden from screen readers', () => {
+    render(<Testimonials />);
+    // Pattern icon containers should be aria-hidden
+    const articles = screen.getAllByRole('article');
+    const firstArticle = articles[0];
+    const iconContainer = firstArticle?.querySelector('[aria-hidden="true"]');
+    expect(iconContainer).toBeInTheDocument();
+  });
+});
+
+describe('Improvement: ScrollToTop accessibility', () => {
+  it('scroll-to-top button has descriptive aria-label', async () => {
+    const { ScrollToTop } = await import('../components/ScrollToTop');
+    render(<ScrollToTop />);
+    const button = screen.getByLabelText('Scroll to top');
+    expect(button).toBeInTheDocument();
   });
 });

@@ -43,4 +43,10 @@ describe('Testimonials', () => {
     const section = screen.getByRole('heading', { level: 2 }).closest('section');
     expect(section).toHaveAttribute('id', 'testimonials');
   });
+
+  it('renders scenario cards as articles for accessibility', () => {
+    render(<Testimonials />);
+    const articles = screen.getAllByRole('article');
+    expect(articles.length).toBe(3);
+  });
 });
