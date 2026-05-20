@@ -145,7 +145,7 @@ export function Hero() {
               {/* Floating label */}
               <div className="absolute top-0 right-0 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md border border-neutral-200">
                 <div className="text-xs font-medium text-neutral-900">Entropy Heat Map</div>
-                <div className="text-xs text-neutral-500">Live simulation</div>
+                <div className="text-xs text-primary font-medium">Click to probe</div>
               </div>
               {/* Status indicator */}
               <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-white rounded-full px-3 py-1 shadow-sm border border-neutral-200">

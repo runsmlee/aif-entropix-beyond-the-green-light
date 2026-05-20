@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 
 const GRID_SIZE = 8;
 const CELL_SIZE = 20;
@@ -80,10 +80,68 @@ export function EntropyVisualization() {
   const timeRef = useRef<number>(0);
   const spikeRef = useRef<Map<string, number>>(new Map());
   const mountedRef = useRef(true);
+  const [probeTip, setProbeTip] = useState<{ x: number; y: number; entropy: number } | null>(null);
 
   const getTotalSize = useCallback(
     () => PADDING * 2 + GRID_SIZE * (CELL_SIZE + GAP) - GAP,
     []
+  );
+
+  const handleCanvasClick = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = getTotalSize() / rect.width;
+      const scaleY = getTotalSize() / rect.height;
+      const clickX = (e.clientX - rect.left) * scaleX;
+      const clickY = (e.clientY - rect.top) * scaleY;
+
+      const col = Math.floor((clickX - PADDING) / (CELL_SIZE + GAP));
+      const row = Math.floor((clickY - PADDING) / (CELL_SIZE + GAP));
+
+      if (col < 0 || col >= GRID_SIZE || row < 0 || row >= GRID_SIZE) return;
+
+      // Check click is within cell bounds, not in gap
+      const cellLeft = PADDING + col * (CELL_SIZE + GAP);
+      const cellTop = PADDING + row * (CELL_SIZE + GAP);
+      if (clickX < cellLeft || clickX > cellLeft + CELL_SIZE) return;
+      if (clickY < cellTop || clickY > cellTop + CELL_SIZE) return;
+
+      // Trigger spike cascade from clicked cell
+      const key = `${col},${row}`;
+      spikeRef.current.set(key, 0.95);
+
+      const neighbors: [number, number][] = [
+        [col - 1, row], [col + 1, row],
+        [col, row - 1], [col, row + 1],
+        [col - 1, row - 1], [col + 1, row + 1],
+        [col - 1, row + 1], [col + 1, row - 1],
+      ];
+      for (const [nx, ny] of neighbors) {
+        if (nx >= 0 && nx < GRID_SIZE && ny >= 0 && ny < GRID_SIZE) {
+          spikeRef.current.set(`${nx},${ny}`, 0.7);
+        }
+      }
+
+      // Find the cell to get its current entropy for the tooltip
+      const cell = cellsRef.current.find((c) => c.x === col && c.y === row);
+      if (cell) {
+        setProbeTip({
+          x: cellLeft + CELL_SIZE / 2,
+          y: cellTop,
+          entropy: cell.entropy,
+        });
+        setTimeout(() => setProbeTip(null), 1800);
+      }
+
+      // Track the interaction
+      if (typeof window !== 'undefined' && window.aif?.track) {
+        window.aif.track('hero_probe_click', { cell: `${col},${row}` });
+      }
+    },
+    [getTotalSize]
   );
 
   useEffect(() => {
@@ -205,11 +263,25 @@ export function EntropyVisualization() {
   }, [getTotalSize]);
 
   return (
-    <div className="relative" role="img" aria-label="Animated entropy heat map visualization showing system signal disorder across an 8 by 8 grid. Green indicates low entropy, amber indicates moderate, and red indicates high.">
+    <div className="relative" role="img" aria-label="Interactive entropy heat map visualization. Click any cell to probe it and trigger a spike cascade. Green indicates low entropy, amber indicates moderate, and red indicates high.">
       <canvas
         ref={canvasRef}
-        className="rounded-xl shadow-2xl ring-1 ring-neutral-200/50"
+        className="rounded-xl shadow-2xl ring-1 ring-neutral-200/50 cursor-pointer"
+        onClick={handleCanvasClick}
+        aria-label="Click to probe entropy cells"
       />
+      {probeTip && (
+        <div
+          className="absolute pointer-events-none bg-neutral-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap transition-opacity duration-300"
+          style={{
+            left: `${probeTip.x}px`,
+            top: `${probeTip.y - 28}px`,
+            transform: 'translateX(-50%)',
+          }}
+        >
+          Entropy: {probeTip.entropy.toFixed(2)}
+        </div>
+      )}
       {/* Accessible color legend */}
       <div className="absolute -bottom-8 left-0 right-0 flex items-center justify-center gap-2 text-xs text-neutral-400" aria-hidden="true">
         <span>Low entropy</span>

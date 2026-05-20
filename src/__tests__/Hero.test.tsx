@@ -33,7 +33,7 @@ describe('Hero', () => {
   it('renders the entropy heat map labels on desktop', () => {
     render(<Hero />);
     expect(screen.getByText('Entropy Heat Map')).toBeInTheDocument();
-    expect(screen.getByText('Live simulation')).toBeInTheDocument();
+    expect(screen.getByText('Click to probe')).toBeInTheDocument();
   });
 
   it('renders the badge with Next-Generation Intelligence text', () => {
