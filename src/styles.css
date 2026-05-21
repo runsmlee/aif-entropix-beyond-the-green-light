@@ -79,6 +79,24 @@ html {
   background: theme(--color-neutral-400);
 }
 
+/* Hero heading interactive glow — h1 "Green Light" hover effect */
+.hero-heading-highlight {
+  transition: text-shadow 0.3s ease-out;
+  cursor: default;
+}
+
+.hero-heading-highlight:hover {
+  text-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+}
+
+.hero-heading-highlight svg {
+  transition: color 0.3s ease-out;
+}
+
+.hero-heading-highlight:hover svg {
+  color: rgba(239, 68, 68, 0.6);
+}
+
 /* Smooth card hover lift */
 .hover-lift {
   transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;

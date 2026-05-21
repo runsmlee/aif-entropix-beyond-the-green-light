@@ -75,7 +75,7 @@ export function Hero() {
 
             <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-900 tracking-tight leading-tight">
               Beyond the{' '}
-              <span className="text-primary relative">
+              <span className="text-primary relative hero-heading-highlight">
                 Green Light
                 <svg className="absolute -bottom-1 left-0 w-full h-2 text-primary/30" viewBox="0 0 200 8" fill="none" aria-hidden="true">
                   <path d="M1 5.5C47 2 87 1 131 3.5C154 4.5 175 5.5 199 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
