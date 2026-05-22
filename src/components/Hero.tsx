@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useEffect } from 'react';
+import { useState, useCallback, lazy, Suspense } from 'react';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 
 const EntropyVisualization = lazy(() =>
@@ -7,52 +7,157 @@ const EntropyVisualization = lazy(() =>
   }))
 );
 
-function SocialProofCounter() {
-  const [count, setCount] = useState(0);
-  const { ref, isVisible } = useScrollAnimation<HTMLDivElement>({ threshold: 0.1 });
-  const targetCount = 380;
+interface DemoSignal {
+  label: string;
+  value: number;
+  color: string;
+}
 
-  useEffect(() => {
-    if (!isVisible) return;
+const DEMO_SIGNALS: DemoSignal[] = [
+  { label: 'CPU', value: 0.12, color: 'bg-emerald-400' },
+  { label: 'I/O', value: 0.28, color: 'bg-amber-400' },
+  { label: 'Net', value: 0.08, color: 'bg-emerald-400' },
+  { label: 'Mem', value: 0.35, color: 'bg-amber-400' },
+];
 
-    const duration = 1500;
+function computeDeterministicSignals(url: string): DemoSignal[] {
+  let hash = 0;
+  for (let i = 0; i < url.length; i++) {
+    hash = ((hash << 5) - hash + url.charCodeAt(i)) | 0;
+  }
+  return DEMO_SIGNALS.map((signal, idx) => {
+    const seed = Math.abs(hash + idx * 17) % 100;
+    const value = 0.05 + (seed / 100) * 0.40;
+    const color = value < 0.25 ? 'bg-emerald-400' : value < 0.35 ? 'bg-amber-400' : 'bg-red-400';
+    return { ...signal, value, color };
+  });
+}
+
+function InlineDemoProbe() {
+  const [probing, setProbing] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [signals, setSignals] = useState<DemoSignal[] | null>(null);
+  const [revealScore, setRevealScore] = useState(false);
+  const { ref } = useScrollAnimation<HTMLDivElement>({ threshold: 0.1 });
+
+  const handleTryDemo = useCallback(() => {
+    if (probing) return;
+    setProbing(true);
+    setProgress(0);
+    setRevealScore(false);
+    setSignals(null);
+
+    const computed = computeDeterministicSignals('demo.api/status');
+    const duration = 2000;
     const startTime = performance.now();
 
-    function animate(currentTime: number): void {
+    function animateProgress(currentTime: number): void {
       const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.round(targetCount * eased));
+      const pct = Math.min(elapsed / duration, 1);
+      setProgress(Math.round(pct * 100));
 
-      if (progress < 1) {
-        requestAnimationFrame(animate);
+      if (pct < 1) {
+        requestAnimationFrame(animateProgress);
+      } else {
+        setSignals(computed);
+        setProbing(false);
+        setTimeout(() => setRevealScore(true), 400);
       }
     }
 
-    const id = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(id);
-  }, [isVisible]);
+    requestAnimationFrame(animateProgress);
+
+    if (typeof window !== 'undefined' && window.aif?.track) {
+      window.aif.track('hero_demo_probe', { source: 'hero_inline' });
+    }
+  }, [probing]);
+
+  const avgEntropy = signals
+    ? signals.reduce((sum, s) => sum + s.value, 0) / signals.length
+    : 0;
 
   return (
     <div ref={ref} className="mt-10 pt-8 border-t border-neutral-200/60">
-      <div className="flex items-center justify-start gap-6 text-sm text-neutral-500">
-        <div className="flex items-center gap-2">
-          <div className="flex -space-x-2" aria-hidden="true">
-            {['bg-primary', 'bg-sky-500', 'bg-amber-500', 'bg-emerald-500'].map((color, i) => (
+      <div
+        className="bg-white rounded-xl border border-neutral-200 shadow-sm p-4 w-full max-w-sm"
+        role="region"
+        aria-label="Quick entropy demo"
+      >
+        {!probing && !signals && (
+          <button
+            type="button"
+            onClick={handleTryDemo}
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Run a Quick Demo Probe
+          </button>
+        )}
+
+        {probing && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-xs text-neutral-500">
+              <span className="font-medium text-neutral-700">Probing demo endpoint…</span>
+              <span>{progress}%</span>
+            </div>
+            <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
               <div
-                key={i}
-                className={`w-7 h-7 rounded-full ${color} ring-2 ring-white flex items-center justify-center text-white text-[10px] font-bold`}
-              >
-                {String.fromCharCode(65 + i)}
-              </div>
-            ))}
+                className="h-full bg-primary rounded-full transition-all duration-200 ease-out"
+                style={{ width: `${progress}%` }}
+                role="progressbar"
+                aria-valuenow={progress}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label="Demo probe progress"
+              />
+            </div>
           </div>
-          <span className="text-neutral-700 font-semibold" aria-label={`${targetCount}+ teams`}>
-            {count}+ teams
-          </span>
-        </div>
-        <span className="text-neutral-300" aria-hidden="true">|</span>
-        <span>Joined this month</span>
+        )}
+
+        {signals && !probing && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-medium text-neutral-900">Probe Results</span>
+              <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+                Complete
+              </span>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {signals.map((signal) => (
+                <div key={signal.label} className="text-center">
+                  <div className="text-[10px] text-neutral-500 mb-1">{signal.label}</div>
+                  <div className="h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${signal.color}`}
+                      style={{ width: `${Math.min(signal.value * 100 * 2, 100)}%` }}
+                      role="progressbar"
+                      aria-valuenow={Math.round(signal.value * 100)}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label={`${signal.label} entropy: ${Math.round(signal.value * 100)}%`}
+                    />
+                  </div>
+                  <div className="text-[10px] text-neutral-400 mt-0.5">{signal.value.toFixed(2)}</div>
+                </div>
+              ))}
+            </div>
+            {revealScore && (
+              <div className="flex items-center justify-between pt-2 border-t border-neutral-100">
+                <span className="text-xs text-neutral-500">Avg entropy</span>
+                <span className="text-sm font-semibold text-amber-600">{avgEntropy.toFixed(2)}</span>
+              </div>
+            )}
+            <a
+              href="#live-probe"
+              className="block w-full text-center text-xs text-primary font-medium hover:underline"
+            >
+              Try a full probe with your own URL &rarr;
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -70,7 +175,7 @@ export function Hero() {
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium mb-6 ring-1 ring-primary/20">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" aria-hidden="true" />
-              Next-Generation Intelligence
+              Your Dashboards Are Lying
             </div>
 
             <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-900 tracking-tight leading-tight">
@@ -84,17 +189,17 @@ export function Hero() {
             </h1>
 
             <p className="mt-6 text-lg sm:text-xl text-neutral-600 leading-relaxed">
-              Stop trusting surface-level metrics. Entropix reveals the hidden chaos
-              in your systems through entropy-aware intelligence that goes deeper than
-              pass/fail indicators.
+              Your dashboards say everything&apos;s fine. Entropix shows you
+              the uncertainty they hide — so you catch problems before
+              the red lights start flashing.
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <a
-                href="#cta"
+                href="#live-probe"
                 className="group inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30"
               >
-                Start Free Trial
+                Try the Demo
                 <svg className="ml-2 w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
@@ -132,8 +237,8 @@ export function Hero() {
               </div>
             </div>
 
-            {/* Social proof */}
-            <SocialProofCounter />
+            {/* Inline interactive demo probe — replaces social proof counter */}
+            <InlineDemoProbe />
           </div>
 
           {/* Animated entropy visualization — desktop */}

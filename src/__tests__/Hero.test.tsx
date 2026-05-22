@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { Hero } from '../components/Hero';
 
@@ -12,7 +12,7 @@ describe('Hero', () => {
 
   it('renders CTA buttons', () => {
     render(<Hero />);
-    const startButton = screen.getByText('Start Free Trial');
+    const startButton = screen.getByText('Try the Demo');
     expect(startButton).toBeInTheDocument();
     const howItWorks = screen.getByText('See How It Works');
     expect(howItWorks).toBeInTheDocument();
@@ -25,9 +25,9 @@ describe('Hero', () => {
     expect(screen.getByText('Cancel anytime')).toBeInTheDocument();
   });
 
-  it('renders the social proof counter', () => {
+  it('renders the inline demo probe button', () => {
     render(<Hero />);
-    expect(screen.getByText('Joined this month')).toBeInTheDocument();
+    expect(screen.getByText('Run a Quick Demo Probe')).toBeInTheDocument();
   });
 
   it('renders the entropy heat map labels on desktop', () => {
@@ -36,13 +36,27 @@ describe('Hero', () => {
     expect(screen.getByText('Click to probe')).toBeInTheDocument();
   });
 
-  it('renders the badge with Next-Generation Intelligence text', () => {
+  it('renders the badge with action-oriented text', () => {
     render(<Hero />);
-    expect(screen.getByText('Next-Generation Intelligence')).toBeInTheDocument();
+    expect(screen.getByText('Your Dashboards Are Lying')).toBeInTheDocument();
   });
 
   it('renders the analyzing signals indicator', () => {
     render(<Hero />);
     expect(screen.getByText('Analyzing 3 signals')).toBeInTheDocument();
+  });
+
+  it('primary CTA links to the live probe section', () => {
+    render(<Hero />);
+    const demoLink = screen.getByText('Try the Demo').closest('a');
+    expect(demoLink).toHaveAttribute('href', '#live-probe');
+  });
+
+  it('inline demo probe triggers animation on click', () => {
+    render(<Hero />);
+    const probeButton = screen.getByText('Run a Quick Demo Probe');
+    fireEvent.click(probeButton);
+    // After clicking, the probe should start — check for probing state
+    expect(screen.getByText(/Probing demo endpoint/)).toBeInTheDocument();
   });
 });

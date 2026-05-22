@@ -11,10 +11,10 @@ import { Footer } from '../components/Footer';
 import { Testimonials } from '../components/Testimonials';
 
 describe('Improvement: Hero uses shared useScrollAnimation hook', () => {
-  it('social proof counter becomes visible when scrolled into view', () => {
+  it('inline demo probe button renders in hero', () => {
     render(<Hero />);
-    const teamsText = screen.getByLabelText('380+ teams');
-    expect(teamsText).toBeInTheDocument();
+    const probeButton = screen.getByText('Run a Quick Demo Probe');
+    expect(probeButton).toBeInTheDocument();
   });
 
   it('renders responsive mobile entropy card', () => {
