@@ -150,7 +150,7 @@ export function Metrics() {
             Measured impact, not vanity metrics
           </h2>
           <p className="mt-4 text-lg text-neutral-400">
-            Real results from teams that moved beyond the green light.
+            Real results from teams that stopped trusting pass/fail dashboards.
           </p>
         </div>
 

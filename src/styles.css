@@ -79,7 +79,7 @@ html {
   background: theme(--color-neutral-400);
 }
 
-/* Hero heading interactive glow — h1 "Green Light" hover effect */
+/* Hero heading interactive glow — h1 "Pass/Fail" hover effect */
 .hero-heading-highlight {
   transition: text-shadow 0.3s ease-out;
   cursor: default;

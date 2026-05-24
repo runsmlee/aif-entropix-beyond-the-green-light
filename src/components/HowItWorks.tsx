@@ -73,7 +73,7 @@ export function HowItWorks() {
           }`}
         >
           <h2 id="how-it-works-heading" className="text-3xl sm:text-4xl font-bold text-neutral-900">
-            From green lights to genuine insight
+            From pass/fail metrics to genuine insight
           </h2>
           <p className="mt-4 text-lg text-neutral-600">
             Four steps to transform how your team understands system health.

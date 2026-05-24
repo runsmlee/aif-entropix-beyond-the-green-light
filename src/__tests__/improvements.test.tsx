@@ -290,7 +290,7 @@ describe('Improvement: CTA form quality', () => {
     fireEvent.click(submitBtn);
 
     expect(screen.getByText(/You're on the list/)).toBeInTheDocument();
-    expect(screen.queryByText(/beyond the green light/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/measure what your dashboards miss/)).not.toBeInTheDocument();
   });
 });
 

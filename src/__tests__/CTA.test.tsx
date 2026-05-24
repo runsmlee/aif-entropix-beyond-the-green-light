@@ -7,7 +7,7 @@ describe('CTA', () => {
     render(<CTA />);
     const heading = screen.getByRole('heading', { level: 2 });
     expect(heading).toBeInTheDocument();
-    expect(heading.textContent).toContain('beyond the green light');
+    expect(heading.textContent).toContain('measure what your dashboards miss');
   });
 
   it('renders the email input', () => {
@@ -55,7 +55,7 @@ describe('CTA', () => {
     const submitButton = screen.getByRole('button', { name: 'Start Free Trial' });
     fireEvent.click(submitButton);
     // Should still show the form, not success
-    expect(screen.getByText(/beyond the green light/)).toBeInTheDocument();
+    expect(screen.getByText(/measure what your dashboards miss/)).toBeInTheDocument();
   });
 
   it('shows error for invalid email format on submit', () => {
@@ -69,7 +69,7 @@ describe('CTA', () => {
     expect(screen.getByRole('alert')).toBeInTheDocument();
     expect(screen.getByText(/valid email/i)).toBeInTheDocument();
     // Should still show the form heading
-    expect(screen.getByText(/beyond the green light/)).toBeInTheDocument();
+    expect(screen.getByText(/measure what your dashboards miss/)).toBeInTheDocument();
   });
 
   it('shows error for whitespace-only email on submit', () => {
@@ -81,7 +81,7 @@ describe('CTA', () => {
     fireEvent.click(submitButton);
 
     // Should still show the form, not success state
-    expect(screen.getByText(/beyond the green light/)).toBeInTheDocument();
+    expect(screen.getByText(/measure what your dashboards miss/)).toBeInTheDocument();
   });
 
   it('shows error when invalid email is entered and blurred', () => {

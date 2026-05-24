@@ -175,23 +175,25 @@ export function Hero() {
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium mb-6 ring-1 ring-primary/20">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" aria-hidden="true" />
-              Your Dashboards Are Lying
+              Uncertainty-Aware Monitoring
             </div>
 
             <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-900 tracking-tight leading-tight">
-              Beyond the{' '}
+              Stop Trusting{' '}
               <span className="text-primary relative hero-heading-highlight">
-                Green Light
+                Pass/Fail
                 <svg className="absolute -bottom-1 left-0 w-full h-2 text-primary/30" viewBox="0 0 200 8" fill="none" aria-hidden="true">
                   <path d="M1 5.5C47 2 87 1 131 3.5C154 4.5 175 5.5 199 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 </svg>
-              </span>
+              </span>{' '}
+              Dashboards
             </h1>
 
             <p className="mt-6 text-lg sm:text-xl text-neutral-600 leading-relaxed">
-              Your dashboards say everything&apos;s fine. Entropix shows you
-              the uncertainty they hide — so you catch problems before
-              the red lights start flashing.
+              Dashboard metrics show green, but the{' '}
+              <span className="font-semibold text-neutral-900">uncertainty hiding behind pass/fail indicators</span>{' '}
+              is where the real risk lives. Entropix measures it — so you catch
+              degradation before it becomes an incident.
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row gap-4">

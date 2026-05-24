@@ -91,7 +91,7 @@ export function CTA() {
                   id="cta-heading"
                   className="text-3xl sm:text-4xl font-bold text-white max-w-2xl mx-auto"
                 >
-                  Ready to look beyond the green light?
+                  Ready to measure what your dashboards miss?
                 </h2>
                 <p className="mt-4 text-lg text-neutral-300 max-w-xl mx-auto">
                   Join hundreds of engineering teams who trust entropy-aware intelligence

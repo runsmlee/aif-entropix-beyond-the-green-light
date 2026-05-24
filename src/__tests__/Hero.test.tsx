@@ -7,7 +7,7 @@ describe('Hero', () => {
     render(<Hero />);
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toBeInTheDocument();
-    expect(heading.textContent).toContain('Beyond the');
+    expect(heading.textContent).toContain('Stop Trusting');
   });
 
   it('renders CTA buttons', () => {
@@ -38,7 +38,7 @@ describe('Hero', () => {
 
   it('renders the badge with action-oriented text', () => {
     render(<Hero />);
-    expect(screen.getByText('Your Dashboards Are Lying')).toBeInTheDocument();
+    expect(screen.getByText('Uncertainty-Aware Monitoring')).toBeInTheDocument();
   });
 
   it('renders the analyzing signals indicator', () => {

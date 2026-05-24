@@ -7,8 +7,9 @@ describe('App', () => {
     render(<App />);
     const heading = await screen.findByRole('heading', { level: 1 }, { timeout: 5000 });
     expect(heading).toBeInTheDocument();
-    expect(heading.textContent).toContain('Beyond the');
-    expect(heading.textContent).toContain('Green Light');
+    expect(heading.textContent).toContain('Stop Trusting');
+    expect(heading.textContent).toContain('Pass/Fail');
+    expect(heading.textContent).toContain('Dashboards');
   });
 
   it('renders the skip to content link', () => {
