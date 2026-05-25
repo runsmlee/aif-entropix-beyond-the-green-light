@@ -7,7 +7,7 @@ describe('Hero', () => {
     render(<Hero />);
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toBeInTheDocument();
-    expect(heading.textContent).toContain('Stop Trusting');
+    expect(heading.textContent).toContain('Why Green Dashboards Miss Real Incidents');
   });
 
   it('renders CTA buttons', () => {

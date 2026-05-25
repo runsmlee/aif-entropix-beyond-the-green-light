@@ -179,20 +179,19 @@ export function Hero() {
             </div>
 
             <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-900 tracking-tight leading-tight">
-              Stop Trusting{' '}
+              Why Green Dashboards Miss{' '}
               <span className="text-primary relative hero-heading-highlight">
-                Pass/Fail
+                Real Incidents
                 <svg className="absolute -bottom-1 left-0 w-full h-2 text-primary/30" viewBox="0 0 200 8" fill="none" aria-hidden="true">
                   <path d="M1 5.5C47 2 87 1 131 3.5C154 4.5 175 5.5 199 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 </svg>
-              </span>{' '}
-              Dashboards
+              </span>
             </h1>
 
             <p className="mt-6 text-lg sm:text-xl text-neutral-600 leading-relaxed">
-              Dashboard metrics show green, but the{' '}
-              <span className="font-semibold text-neutral-900">uncertainty hiding behind pass/fail indicators</span>{' '}
-              is where the real risk lives. Entropix measures it — so you catch
+              Your dashboards show green. Then an incident hits. The{' '}
+              <span className="font-semibold text-neutral-900">uncertainty hiding inside pass/fail metrics</span>{' '}
+              is what green lights miss. Entropix measures it — so you catch
               degradation before it becomes an incident.
             </p>
 
