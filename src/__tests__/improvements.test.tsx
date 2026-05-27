@@ -10,11 +10,13 @@ import { HowItWorks } from '../components/HowItWorks';
 import { Footer } from '../components/Footer';
 import { Testimonials } from '../components/Testimonials';
 
-describe('Improvement: Hero uses shared useScrollAnimation hook', () => {
-  it('inline demo probe button renders in hero', () => {
+describe('Improvement: Hero primary CTA triggers inline demo', () => {
+  it('primary CTA button triggers demo probe on click', () => {
     render(<Hero />);
-    const probeButton = screen.getByText('Run a Quick Demo Probe');
-    expect(probeButton).toBeInTheDocument();
+    const demoButton = screen.getByRole('button', { name: /Try the Demo/i });
+    expect(demoButton).toBeInTheDocument();
+    fireEvent.click(demoButton);
+    expect(screen.getByText(/Probing demo endpoint/)).toBeInTheDocument();
   });
 
   it('renders responsive mobile entropy card', () => {

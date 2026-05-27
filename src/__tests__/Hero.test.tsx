@@ -3,17 +3,17 @@ import { describe, it, expect } from 'vitest';
 import { Hero } from '../components/Hero';
 
 describe('Hero', () => {
-  it('renders the hero heading', () => {
+  it('renders the hero heading with sharpened copy', () => {
     render(<Hero />);
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toBeInTheDocument();
-    expect(heading.textContent).toContain('Why Green Dashboards Miss Real Incidents');
+    expect(heading.textContent).toContain('Catch What Green Dashboards Miss');
   });
 
   it('renders CTA buttons', () => {
     render(<Hero />);
-    const startButton = screen.getByText('Try the Demo');
-    expect(startButton).toBeInTheDocument();
+    const demoButton = screen.getByRole('button', { name: /Try the Demo/i });
+    expect(demoButton).toBeInTheDocument();
     const howItWorks = screen.getByText('See How It Works');
     expect(howItWorks).toBeInTheDocument();
   });
@@ -25,9 +25,13 @@ describe('Hero', () => {
     expect(screen.getByText('Cancel anytime')).toBeInTheDocument();
   });
 
-  it('renders the inline demo probe button', () => {
+  it('primary CTA is an interactive button that triggers demo probe', () => {
     render(<Hero />);
-    expect(screen.getByText('Run a Quick Demo Probe')).toBeInTheDocument();
+    const demoButton = screen.getByRole('button', { name: /Try the Demo/i });
+    expect(demoButton).toHaveAttribute('type', 'button');
+    fireEvent.click(demoButton);
+    // After clicking, the probe should start — check for probing state
+    expect(screen.getByText(/Probing demo endpoint/)).toBeInTheDocument();
   });
 
   it('renders the entropy heat map labels on desktop', () => {
@@ -46,17 +50,12 @@ describe('Hero', () => {
     expect(screen.getByText('Analyzing 3 signals')).toBeInTheDocument();
   });
 
-  it('primary CTA links to the live probe section', () => {
+  it('demo probe shows progress bar during probing', () => {
     render(<Hero />);
-    const demoLink = screen.getByText('Try the Demo').closest('a');
-    expect(demoLink).toHaveAttribute('href', '#live-probe');
-  });
-
-  it('inline demo probe triggers animation on click', () => {
-    render(<Hero />);
-    const probeButton = screen.getByText('Run a Quick Demo Probe');
-    fireEvent.click(probeButton);
-    // After clicking, the probe should start — check for probing state
-    expect(screen.getByText(/Probing demo endpoint/)).toBeInTheDocument();
+    const demoButton = screen.getByRole('button', { name: /Try the Demo/i });
+    fireEvent.click(demoButton);
+    // Progress bar should appear
+    const progressBar = screen.getByRole('progressbar', { name: 'Demo probe progress' });
+    expect(progressBar).toBeInTheDocument();
   });
 });

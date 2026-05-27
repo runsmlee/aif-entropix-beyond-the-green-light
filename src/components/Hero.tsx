@@ -33,12 +33,12 @@ function computeDeterministicSignals(url: string): DemoSignal[] {
   });
 }
 
-function InlineDemoProbe() {
+export function Hero() {
   const [probing, setProbing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [signals, setSignals] = useState<DemoSignal[] | null>(null);
   const [revealScore, setRevealScore] = useState(false);
-  const { ref } = useScrollAnimation<HTMLDivElement>({ threshold: 0.1 });
+  const { ref: demoRef } = useScrollAnimation<HTMLDivElement>({ threshold: 0.1 });
 
   const handleTryDemo = useCallback(() => {
     if (probing) return;
@@ -68,7 +68,7 @@ function InlineDemoProbe() {
     requestAnimationFrame(animateProgress);
 
     if (typeof window !== 'undefined' && window.aif?.track) {
-      window.aif.track('hero_demo_probe', { source: 'hero_inline' });
+      window.aif.track('hero_demo_probe', { source: 'hero_cta' });
     }
   }, [probing]);
 
@@ -76,94 +76,6 @@ function InlineDemoProbe() {
     ? signals.reduce((sum, s) => sum + s.value, 0) / signals.length
     : 0;
 
-  return (
-    <div ref={ref} className="mt-10 pt-8 border-t border-neutral-200/60">
-      <div
-        className="bg-white rounded-xl border border-neutral-200 shadow-sm p-4 w-full max-w-sm"
-        role="region"
-        aria-label="Quick entropy demo"
-      >
-        {!probing && !signals && (
-          <button
-            type="button"
-            onClick={handleTryDemo}
-            className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-            Run a Quick Demo Probe
-          </button>
-        )}
-
-        {probing && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between text-xs text-neutral-500">
-              <span className="font-medium text-neutral-700">Probing demo endpoint…</span>
-              <span>{progress}%</span>
-            </div>
-            <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary rounded-full transition-all duration-200 ease-out"
-                style={{ width: `${progress}%` }}
-                role="progressbar"
-                aria-valuenow={progress}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-label="Demo probe progress"
-              />
-            </div>
-          </div>
-        )}
-
-        {signals && !probing && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-neutral-900">Probe Results</span>
-              <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
-                Complete
-              </span>
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-              {signals.map((signal) => (
-                <div key={signal.label} className="text-center">
-                  <div className="text-[10px] text-neutral-500 mb-1">{signal.label}</div>
-                  <div className="h-1.5 bg-neutral-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full rounded-full ${signal.color}`}
-                      style={{ width: `${Math.min(signal.value * 100 * 2, 100)}%` }}
-                      role="progressbar"
-                      aria-valuenow={Math.round(signal.value * 100)}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                      aria-label={`${signal.label} entropy: ${Math.round(signal.value * 100)}%`}
-                    />
-                  </div>
-                  <div className="text-[10px] text-neutral-400 mt-0.5">{signal.value.toFixed(2)}</div>
-                </div>
-              ))}
-            </div>
-            {revealScore && (
-              <div className="flex items-center justify-between pt-2 border-t border-neutral-100">
-                <span className="text-xs text-neutral-500">Avg entropy</span>
-                <span className="text-sm font-semibold text-amber-600">{avgEntropy.toFixed(2)}</span>
-              </div>
-            )}
-            <a
-              href="#live-probe"
-              className="block w-full text-center text-xs text-primary font-medium hover:underline"
-            >
-              Try a full probe with your own URL &rarr;
-            </a>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-export function Hero() {
   return (
     <section className="relative overflow-hidden bg-white" aria-labelledby="hero-heading">
       {/* Background decoration */}
@@ -179,9 +91,9 @@ export function Hero() {
             </div>
 
             <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-900 tracking-tight leading-tight">
-              Why Green Dashboards Miss{' '}
+              Catch What Green Dashboards{' '}
               <span className="text-primary relative hero-heading-highlight">
-                Real Incidents
+                Miss
                 <svg className="absolute -bottom-1 left-0 w-full h-2 text-primary/30" viewBox="0 0 200 8" fill="none" aria-hidden="true">
                   <path d="M1 5.5C47 2 87 1 131 3.5C154 4.5 175 5.5 199 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 </svg>
@@ -189,22 +101,35 @@ export function Hero() {
             </h1>
 
             <p className="mt-6 text-lg sm:text-xl text-neutral-600 leading-relaxed">
-              Your dashboards show green. Then an incident hits. The{' '}
-              <span className="font-semibold text-neutral-900">uncertainty hiding inside pass/fail metrics</span>{' '}
-              is what green lights miss. Entropix measures it — so you catch
-              degradation before it becomes an incident.
+              Green dashboards give false confidence. Entropix measures the{' '}
+              <span className="font-semibold text-neutral-900">uncertainty inside pass/fail metrics</span>{' '}
+              — catch hidden incidents before they become outages.
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
-              <a
-                href="#live-probe"
-                className="group inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30"
+              <button
+                type="button"
+                onClick={handleTryDemo}
+                disabled={probing}
+                className="group inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-primary rounded-lg hover:bg-primary-dark transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Try the Demo
-                <svg className="ml-2 w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </a>
+                {probing ? (
+                  <>
+                    <svg className="mr-2 w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24" aria-hidden="true">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    Probing…
+                  </>
+                ) : (
+                  <>
+                    Try the Demo
+                    <svg className="ml-2 w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </>
+                )}
+              </button>
               <a
                 href="#how-it-works"
                 className="inline-flex items-center justify-center px-6 py-3 text-base font-medium text-neutral-700 bg-white border border-neutral-300 rounded-lg hover:bg-neutral-50 hover:border-neutral-400 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
@@ -216,6 +141,75 @@ export function Hero() {
                 See How It Works
               </a>
             </div>
+
+            {/* Inline probe progress */}
+            {probing && (
+              <div className="mt-6" aria-live="polite">
+                <div className="bg-white rounded-xl border border-neutral-200 shadow-sm p-4 w-full max-w-sm">
+                  <div className="flex items-center justify-between text-xs text-neutral-500 mb-2">
+                    <span className="font-medium text-neutral-700">Probing demo endpoint…</span>
+                    <span>{progress}%</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-primary rounded-full transition-all duration-200 ease-out"
+                      style={{ width: `${progress}%` }}
+                      role="progressbar"
+                      aria-valuenow={progress}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-label="Demo probe progress"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Probe results */}
+            {signals && !probing && (
+              <div ref={demoRef} className="mt-6" aria-live="polite">
+                <div className="bg-white rounded-xl border border-neutral-200 shadow-sm p-4 w-full max-w-sm">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-medium text-neutral-900">Probe Results</span>
+                    <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+                      Complete
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {signals.map((signal) => (
+                      <div key={signal.label} className="text-center">
+                        <div className="text-[10px] text-neutral-500 mb-1">{signal.label}</div>
+                        <div className="h-1.5 bg-neutral-100 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${signal.color}`}
+                            style={{ width: `${Math.min(signal.value * 100 * 2, 100)}%` }}
+                            role="progressbar"
+                            aria-valuenow={Math.round(signal.value * 100)}
+                            aria-valuemin={0}
+                            aria-valuemax={100}
+                            aria-label={`${signal.label} entropy: ${Math.round(signal.value * 100)}%`}
+                          />
+                        </div>
+                        <div className="text-[10px] text-neutral-400 mt-0.5">{signal.value.toFixed(2)}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {revealScore && (
+                    <div className="flex items-center justify-between pt-2 border-t border-neutral-100">
+                      <span className="text-xs text-neutral-500">Avg entropy</span>
+                      <span className="text-sm font-semibold text-amber-600">{avgEntropy.toFixed(2)}</span>
+                    </div>
+                  )}
+                  <a
+                    href="#live-probe"
+                    className="block w-full text-center text-xs text-primary font-medium hover:underline mt-2"
+                  >
+                    Try a full probe with your own URL &rarr;
+                  </a>
+                </div>
+              </div>
+            )}
 
             <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-neutral-500">
               <div className="flex items-center gap-2">
@@ -237,9 +231,6 @@ export function Hero() {
                 Cancel anytime
               </div>
             </div>
-
-            {/* Inline interactive demo probe — replaces social proof counter */}
-            <InlineDemoProbe />
           </div>
 
           {/* Animated entropy visualization — desktop */}
