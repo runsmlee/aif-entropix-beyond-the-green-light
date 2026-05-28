@@ -87,7 +87,7 @@ export function FAQ() {
             Common questions, clear answers
           </h2>
           <p className="mt-4 text-lg text-neutral-600">
-            Everything you need to know about uncertainty-aware dashboard monitoring.
+            Everything you need to know about catching hidden incidents your dashboard misses.
           </p>
         </div>
 

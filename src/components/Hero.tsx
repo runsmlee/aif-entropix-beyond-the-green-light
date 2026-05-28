@@ -87,7 +87,7 @@ export function Hero() {
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium mb-6 ring-1 ring-primary/20">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" aria-hidden="true" />
-              Uncertainty-Aware Monitoring
+              Hidden Incident Detection
             </div>
 
             <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-900 tracking-tight leading-tight">
@@ -101,9 +101,9 @@ export function Hero() {
             </h1>
 
             <p className="mt-6 text-lg sm:text-xl text-neutral-600 leading-relaxed">
-              Green dashboards give false confidence. Entropix measures the{' '}
-              <span className="font-semibold text-neutral-900">uncertainty inside pass/fail metrics</span>{' '}
-              — catch hidden incidents before they become outages.
+              Your green dashboard says everything is fine—until it isn&apos;t. Entropix measures the{' '}
+              <span className="font-semibold text-neutral-900">hidden uncertainty inside your pass/fail metrics</span>{' '}
+              — catching incidents before they become outages.
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row gap-4">

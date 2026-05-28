@@ -42,7 +42,7 @@ describe('Hero', () => {
 
   it('renders the badge with action-oriented text', () => {
     render(<Hero />);
-    expect(screen.getByText('Uncertainty-Aware Monitoring')).toBeInTheDocument();
+    expect(screen.getByText('Hidden Incident Detection')).toBeInTheDocument();
   });
 
   it('renders the analyzing signals indicator', () => {
