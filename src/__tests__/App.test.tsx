@@ -7,7 +7,7 @@ describe('App', () => {
     render(<App />);
     const heading = await screen.findByRole('heading', { level: 1 }, { timeout: 5000 });
     expect(heading).toBeInTheDocument();
-    expect(heading.textContent).toContain('Catch What Green Dashboards Miss');
+    expect(heading.textContent).toContain('Your Green Dashboard Is Lying');
   });
 
   it('renders the skip to content link', () => {
