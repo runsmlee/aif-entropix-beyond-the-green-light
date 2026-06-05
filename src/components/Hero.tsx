@@ -106,6 +106,11 @@ export function Hero() {
               Entropix catches the silent failures your monitoring swears don&apos;t exist.
             </p>
 
+            <p className="mt-3 text-sm text-neutral-400 flex items-center gap-1.5">
+              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+              deterministic · runs in your browser
+            </p>
+
             <div className="mt-10 flex flex-col sm:flex-row gap-4">
               <button
                 type="button"

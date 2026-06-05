@@ -58,4 +58,19 @@ describe('Hero', () => {
     const progressBar = screen.getByRole('progressbar', { name: 'Demo probe progress' });
     expect(progressBar).toBeInTheDocument();
   });
+
+  it('renders deterministic trust indicator below value prop', () => {
+    render(<Hero />);
+    expect(screen.getByText(/deterministic · runs in your browser/)).toBeInTheDocument();
+  });
+
+  it('value prop appears before deterministic indicator', () => {
+    const { container } = render(<Hero />);
+    const valueProp = screen.getByText(/false negative waiting to explode/);
+    const deterministic = screen.getByText(/deterministic · runs in your browser/);
+    const allParagraphs = Array.from(container.querySelectorAll('p'));
+    const valuePropIndex = allParagraphs.indexOf(valueProp.closest('p')!);
+    const deterministicIndex = allParagraphs.indexOf(deterministic.closest('p')!);
+    expect(valuePropIndex).toBeLessThan(deterministicIndex);
+  });
 });
