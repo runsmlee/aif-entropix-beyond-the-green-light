@@ -91,6 +91,9 @@ export function Hero() {
             </div>
 
             <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-900 tracking-tight leading-tight">
+              API Drift Detector
+            </h1>
+            <p className="mt-3 text-xl sm:text-2xl lg:text-3xl font-semibold text-neutral-700 leading-snug">
               Your Green Dashboard Is{' '}
               <span className="text-primary relative hero-heading-highlight">
                 Lying
@@ -98,7 +101,7 @@ export function Hero() {
                   <path d="M1 5.5C47 2 87 1 131 3.5C154 4.5 175 5.5 199 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 </svg>
               </span>
-            </h1>
+            </p>
 
             <p className="mt-6 text-lg sm:text-xl text-neutral-600 leading-relaxed">
               Every green light you trusted was a{' '}

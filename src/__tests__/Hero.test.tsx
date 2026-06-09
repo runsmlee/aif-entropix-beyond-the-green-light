@@ -7,7 +7,15 @@ describe('Hero', () => {
     render(<Hero />);
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toBeInTheDocument();
-    expect(heading.textContent).toContain('Your Green Dashboard Is Lying');
+    expect(heading.textContent).toBe('API Drift Detector');
+  });
+
+  it('renders the emotional hook as subheading beneath H1', () => {
+    render(<Hero />);
+    expect(screen.getByText(/Your Green Dashboard Is/)).toBeInTheDocument();
+    // Verify the subheading is a p element (not a heading), to confirm single H1
+    const subheading = screen.getByText(/Your Green Dashboard Is/).closest('p');
+    expect(subheading).toBeInTheDocument();
   });
 
   it('renders CTA buttons', () => {
