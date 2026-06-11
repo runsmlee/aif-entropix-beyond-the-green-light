@@ -91,7 +91,7 @@ export function Hero() {
             </div>
 
             <h1 id="hero-heading" className="text-4xl sm:text-5xl lg:text-6xl font-bold text-neutral-900 tracking-tight leading-tight">
-              API Drift Detector
+              API Response Drift Detector
             </h1>
             <p className="mt-3 text-xl sm:text-2xl lg:text-3xl font-semibold text-neutral-700 leading-snug">
               Your Green Dashboard Is{' '}

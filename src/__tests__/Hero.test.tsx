@@ -7,7 +7,7 @@ describe('Hero', () => {
     render(<Hero />);
     const heading = screen.getByRole('heading', { level: 1 });
     expect(heading).toBeInTheDocument();
-    expect(heading.textContent).toBe('API Drift Detector');
+    expect(heading.textContent).toBe('API Response Drift Detector');
   });
 
   it('renders the emotional hook as subheading beneath H1', () => {
